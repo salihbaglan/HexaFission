@@ -164,6 +164,22 @@ body {
   z-index: 1;
 }
 
+#score-heart-outline {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
+  pointer-events: none;
+  animation: heartPulse 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); opacity: 0.6; filter: drop-shadow(0 0 5px rgba(245, 197, 66, 0.4)); }
+  100% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 15px rgba(245, 197, 66, 0.9)); }
+}
+
 #current-score-box span {
   position: relative;
   z-index: 2;

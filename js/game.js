@@ -106,6 +106,9 @@ function restartGame() {
   document.getElementById('score-display').textContent = '0';
   document.getElementById('best-val').textContent = state.bestScore;
 
+  const outline = document.getElementById('score-heart-outline');
+  if (outline) outline.style.display = 'none';
+
   state.hexPositions.forEach(([q, r]) => { state.grid[`${q},${r}`] = 0; });
   updateGridDisplay();
   updateItemUI();

@@ -142,7 +142,7 @@ export function initGrid() {
 
     gridEl.appendChild(div);
     state.cellElements[key] = { div, val, poly, innerFace, corners: relCorners, cx, cy };
-    state.grid[key] = 0;
+    state.grid[key] = state.grid[key] || 0;
   });
 
   updateGridDisplay();

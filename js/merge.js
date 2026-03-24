@@ -242,6 +242,10 @@ export function addScore(val) {
   state.score += val;
   document.getElementById('score-display').textContent = state.score;
   if (state.score > state.bestScore) {
+    if (state.bestScore > 0) {
+      const outline = document.getElementById('score-heart-outline');
+      if (outline) outline.style.display = 'block';
+    }
     state.bestScore = state.score;
     localStorage.setItem('hex2048best', state.bestScore);
     document.getElementById('best-val').textContent = state.bestScore;
