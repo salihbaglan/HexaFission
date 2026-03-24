@@ -6,30 +6,44 @@ import { updateGridDisplay } from './grid.js';
 import { playMergeSound } from './audio.js';
 
 // Ana merge fonksiyonu — async, animasyonlu ve flood-fill tabanlı
-export async function doMerges() {
+export async function doMerges(newKeys = []) {
   let anyMerged = true;
+  let isCascade = false; // İlk turda false (kullanıcı koydu), zincirlemede true
+  let cascadeCenter = null; // Zincirlemede yeni taşın oluştuğu yer
 
   while (anyMerged) {
     anyMerged = false;
 
-    // Her sayı değeri için komşu küme bul (flood-fill)
     const visited = new Set();
+    // Kural: Kullanıcı taş koyduğunda en az 3 taş yan yana olmalı.
+    // Ancak bir önceki merge sonucu zincirleme reaksiyon (cascade) oluyorsa 2 taş yetmeli.
+    const minRequired = isCascade ? 2 : 3;
 
     for (const key of Object.keys(state.grid)) {
       if (!state.grid[key] || visited.has(key)) continue;
 
       const targetVal = state.grid[key];
-      // Flood-fill: bu değerdeki bağlı tüm komşuları bul
       const group = floodFill(key, targetVal);
 
-      if (group.length < 2) continue; // Merge edilecek grup yok
+      if (group.length < minRequired) continue; // Yetersiz grup
 
       anyMerged = true;
 
-      // Grubun merkez hücresini bul (ilk key = hedefe yakın)
-      const targetKey = group[0];
+      // Merkez hücre seçimi
+      let targetKey = group[0];
+      if (isCascade && cascadeCenter && group.includes(cascadeCenter)) {
+        // Zincirlemede merkez yeni oluşan taştır
+        targetKey = cascadeCenter;
+      } else {
+        // İlk turda kullanıcının koyduğu yeni taşlardan biri merkez olmalı
+        for (const k of newKeys) {
+          if (group.includes(k)) {
+            targetKey = k;
+            break;
+          }
+        }
+      }
 
-      // Animasyon: diğer taşları merkeze kaydır, sonra yok et
       await animateMerge(group, targetKey);
 
       // Skoru hesapla ve uygula — her zaman value * 2 (2048 kuralı)
@@ -39,16 +53,20 @@ export async function doMerges() {
         visited.add(k);
       });
       state.grid[targetKey] = newVal;
+      
+      cascadeCenter = targetKey;
 
-      addScore(newVal * (group.length - 1));
-      playMergeSound(group.length);
+      addScore(newVal); 
+      playMergeSound();
       showMergeBurst(targetKey);
       showScorePop(newVal, state.cellElements[targetKey]);
 
       updateGridDisplay();
-      await sleep(120); // Merge arası kısa bekleme
-      break; // Her turda bir grubu merge et, sonra yeniden tara
+      await sleep(150);
+      break; 
     }
+
+    if (anyMerged) isCascade = true;
   }
 }
 
