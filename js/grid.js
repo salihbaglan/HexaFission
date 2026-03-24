@@ -7,8 +7,9 @@ export function scaleGridToContainer() {
   const container = document.getElementById('grid-container');
   if (!gridEl || !container) return;
 
+  // Subtracting extra height (approx 80px) to account for the score box placed above the grid
   const cW = container.clientWidth  - 16;
-  const cH = container.clientHeight - 16;
+  const cH = container.clientHeight - 86;
   const gW = gridEl.offsetWidth;
   const gH = gridEl.offsetHeight;
   if (!gW || !gH) return;
