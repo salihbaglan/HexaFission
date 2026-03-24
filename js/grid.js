@@ -1,8 +1,25 @@
-import { HEX_SIZE, getTileColor, get3DTileBackground } from './config.js';
+import { HEX_SIZE, getTileColor, get3DTileBackground, calcHexSize } from './config.js';
 import { hexToPixel, hexCorners, pointsStr } from './hexMath.js';
 import { state } from './gameState.js';
 
+export function scaleGridToContainer() {
+  const gridEl = document.getElementById('hex-grid');
+  const container = document.getElementById('grid-container');
+  if (!gridEl || !container) return;
+
+  const cW = container.clientWidth  - 16;
+  const cH = container.clientHeight - 16;
+  const gW = gridEl.offsetWidth;
+  const gH = gridEl.offsetHeight;
+  if (!gW || !gH) return;
+
+  const scale = Math.min(cW / gW, cH / gH, 1);
+  gridEl.style.transform = `scale(${scale})`;
+  state.gridScale = scale; // drag koordinat düzeltmesi için
+}
+
 export function initGrid() {
+  calcHexSize(); // Ekrana göre boyutu hesapla
   const gridEl = document.getElementById('hex-grid');
   gridEl.innerHTML = '';
   state.cellElements = {};

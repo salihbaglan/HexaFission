@@ -13,15 +13,22 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
 body {
   background: var(--bg);
   font-family: 'Nunito', sans-serif;
-  min-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
   user-select: none;
+  touch-action: none;
 }
 
 /* TOP BAR */
@@ -79,13 +86,18 @@ body {
 
 /* GRID CONTAINER */
 #grid-container {
-  padding: 16px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
   position: relative;
-  margin: 0 12px;
 }
 
 #hex-grid {
   position: relative;
+  transform-origin: center center;
 }
 
 .hex-cell {
@@ -148,8 +160,8 @@ body {
 }
 
 .tray-slot {
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   position: relative;
   display: flex;
   align-items: center;

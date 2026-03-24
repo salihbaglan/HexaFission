@@ -1,7 +1,22 @@
 // ==================== CONFIG ====================
 export const GRID_RADIUS = 4; // radius in hexes
-export const HEX_SIZE = 30;   // px, pointy-top
 export const MAX_LIVES = 5;
+
+// HEX_SIZE dinamik olarak hesaplanır
+export let HEX_SIZE = 30;
+
+// Mevcut boşluğa göre ideal hex boyutunu hesapla
+export function calcHexSize() {
+  const diameter = GRID_RADIUS * 2 + 1;
+  // Tray yüksekliği (yaklaşık) + topbar
+  const usedH = 160;
+  const avH = (window.innerHeight - usedH) / (diameter * 1.5 + 0.5);
+  const avW = window.innerWidth * 0.96 / (diameter * Math.sqrt(3));
+  HEX_SIZE = Math.floor(Math.min(avH, avW, 36));
+  if (HEX_SIZE < 18) HEX_SIZE = 18;
+  return HEX_SIZE;
+}
+
 
 export const TILE_COLORS = {
   2:    { bg: '#4fc3f7', shadow: '#0288d1' },

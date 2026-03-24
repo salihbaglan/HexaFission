@@ -3,7 +3,7 @@ import { MAX_LIVES } from './config.js';
 import { state } from './gameState.js';
 import { hexNeighbors } from './hexMath.js';
 import { initAudio, resumeAudioCtx, playSound, startBgMusic } from './audio.js';
-import { initGrid, updateGridDisplay } from './grid.js';
+import { initGrid, updateGridDisplay, scaleGridToContainer } from './grid.js';
 import { generateTray, renderTray } from './tray.js';
 import { initDrag } from './drag.js';
 import { doMerges } from './merge.js';
@@ -105,9 +105,17 @@ async function init() {
   await initAudio();
   document.getElementById('best-val').textContent = state.bestScore;
   initGrid();
+  requestAnimationFrame(() => scaleGridToContainer());
   initDrag(onHexDrop);
   initUI(restartGame);
   
+  // Resize: grid'i yeniden oluştur
+  window.addEventListener('resize', () => {
+    initGrid();
+    updateGridDisplay();
+    requestAnimationFrame(() => scaleGridToContainer());
+  });
+
   // First interaction starts audio (NOT tray generation)
   const startAudio = () => {
     resumeAudioCtx();
