@@ -32,6 +32,16 @@ export async function doMerges(newKeys = []) {
 
       anyMerged = true;
 
+      // 2. ve sonrası merge'lerde (cascade) ekranda hafif sarsıntı hissi
+      if (isCascade) {
+        const gridContainer = document.getElementById('grid-container');
+        if (gridContainer) {
+          gridContainer.classList.remove('screen-shake');
+          void gridContainer.offsetWidth; // trigger reflow
+          gridContainer.classList.add('screen-shake');
+        }
+      }
+
       // Merkez hücre seçimi
       let targetKey = group[0];
       if (isCascade && cascadeCenter && group.includes(cascadeCenter)) {

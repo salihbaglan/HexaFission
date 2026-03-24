@@ -48,26 +48,31 @@ body {
 }
 
 .score-box {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(0,0,0,0.25);
-  padding: 8px 16px;
-  border-radius: 30px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+  justify-content: center;
+  width: 60px;
+  height: 60px;
 }
 
 .score-box img {
-  width: 28px;
-  height: 28px;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
 }
 
 .score-box span {
-  font-size: 24px;
+  position: relative;
+  z-index: 2;
+  font-size: 18px;
   font-weight: 900;
   color: var(--text);
-  letter-spacing: 1px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  margin-top: -4px; /* Slight visual adjustment to center in most icons */
 }
 
 #settings-btn {
@@ -343,4 +348,16 @@ body {
     filter: brightness(1.7) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
     transform: scale(1.05);
   }
+}
+
+/* SCREEN SHAKE (Cascade Merges) */
+@keyframes screenShake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  25% { transform: translate(-2px, -1px) rotate(-0.5deg); }
+  50% { transform: translate(-1px, 2px) rotate(0.5deg); }
+  75% { transform: translate(2px, -1px) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.screen-shake {
+  animation: screenShake 0.3s ease-out;
 }
