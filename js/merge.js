@@ -14,16 +14,19 @@ export async function doMerges(newKeys = []) {
   while (anyMerged) {
     anyMerged = false;
 
+    // Her sayı değeri için komşu küme bul (flood-fill)
     const visited = new Set();
-    // Kural: Kullanıcı taş koyduğunda en az 3 taş yan yana olmalı.
-    // Ancak bir önceki merge sonucu zincirleme reaksiyon (cascade) oluyorsa 2 taş yetmeli.
-    const minRequired = isCascade ? 2 : 3;
 
     for (const key of Object.keys(state.grid)) {
       if (!state.grid[key] || visited.has(key)) continue;
 
       const targetVal = state.grid[key];
       const group = floodFill(key, targetVal);
+
+      // Kural: Kullanıcı taş koyduğunda (veya ilgisiz bir yerde) en az 3 taş yan yana olmalı.
+      // SADECE bir önceki merge sonucu oluşan taşın (cascadeCenter) etrafındaysa 2 taş yetmeli.
+      const isCascadeGroup = isCascade && cascadeCenter && group.includes(cascadeCenter);
+      const minRequired = isCascadeGroup ? 2 : 3;
 
       if (group.length < minRequired) continue; // Yetersiz grup
 
