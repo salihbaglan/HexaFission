@@ -121,7 +121,12 @@ body {
 }
 
 /* TOP BAR */
+#ui-panel {
+  display: contents;
+}
+
 #topbar {
+  order: 1; /* Force top position */
   width: 100%;
   max-width: 480px;
   display: flex;
@@ -205,7 +210,9 @@ body {
 
 /* GRID CONTAINER */
 #grid-container {
+  order: 2; /* Force second position below topbar */
   flex: 1;
+  min-height: 0; /* Critical for flex shrink to work properly */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -270,18 +277,20 @@ body {
 
 /* TRAY */
 #tray {
+  order: 3; /* Force above items-panel */
   width: 100%;
   max-width: 480px;
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
-  padding: 12px 8px 8px;
-  min-height: 120px;
+  padding: 6px 8px 6px;
+  min-height: 90px;
+  flex-shrink: 0;
 }
 
 .tray-slot {
-  width: 110px;
-  height: 110px;
+  width: clamp(60px, 18vmin, 110px);
+  height: clamp(60px, 18vmin, 110px);
   position: relative;
   display: flex;
   align-items: center;
@@ -487,20 +496,21 @@ body {
 
 /* ITEMS PANEL */
 #items-panel {
+  order: 4; /* Force absolute bottom position */
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
   max-width: 480px;
-  margin-top: auto;
-  padding: 10px;
+  padding: 6px 10px 8px;
+  flex-shrink: 0;
   z-index: 50;
 }
 
 .item-btn {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: clamp(40px, 10vmin, 60px);
+  height: clamp(40px, 10vmin, 60px);
   background: rgba(255,255,255,0.15);
   border-radius: 50%;
   display: flex;
@@ -553,8 +563,55 @@ body {
 }
 
 /* Item Source Selection Highlight */
+/* Item Source Selection Highlight */
 .item-source-highlight {
   filter: drop-shadow(0 0 15px var(--accent)) brightness(1.2) !important;
   transform: scale(1.1) !important;
   z-index: 30 !important;
+}
+
+/* --------------------------
+   RESPONSIVE LANDSCAPE/DESKTOP
+   -------------------------- */
+@media (min-aspect-ratio: 1/1) {
+  body {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #grid-container {
+    height: 100dvh;
+    max-width: 60vw;
+    order: 1; /* Grid on the left */
+  }
+
+  #ui-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100dvh;
+    width: clamp(280px, 35vw, 480px);
+    padding: 24px 0;
+    order: 2; /* UI on the right */
+    box-sizing: border-box;
+    background: rgba(0,0,0,0.1);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  }
+
+  #topbar, #tray, #items-panel {
+    width: 100%;
+    max-width: none;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* Make sure tray takes up decent vertical space dynamically */
+  #tray {
+    margin-bottom: 20px;
+  }
+  
+  #items-panel {
+    margin-top: auto;
+  }
 }

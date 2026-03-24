@@ -9,13 +9,15 @@ export function scaleGridToContainer() {
   if (!gridEl || !container) return;
 
   // Subtracting extra height (approx 80px) to account for the score box placed above the grid
-  const cW = container.clientWidth  - 16;
+  const cW = container.clientWidth - 16;
   const cH = container.clientHeight - 86;
   const gW = gridEl.offsetWidth;
   const gH = gridEl.offsetHeight;
   if (!gW || !gH) return;
 
-  const scale = Math.min(cW / gW, cH / gH, 1);
+  const scale = Math.min(cW / gW, cH / gH); // Aşırı büyümesini engellemek için tavan verirken, küçülmesinde aşırı kısıtlama yapmıyoruz (yatay/kare ekranlar için)
+  if (scale > 1.2) scale = 1.2;
+  if (scale < 0.15) scale = 0.15;
   gridEl.style.transform = `scale(${scale})`;
   state.gridScale = scale; // drag koordinat düzeltmesi için
 }
@@ -41,17 +43,17 @@ export function initGrid() {
   state.gridOffsetX = -minX + HEX_SIZE / 2;
   state.gridOffsetY = -minY + HEX_SIZE / 2;
 
-  gridEl.style.width    = W + 'px';
-  gridEl.style.height   = H + 'px';
+  gridEl.style.width = W + 'px';
+  gridEl.style.height = H + 'px';
   gridEl.style.position = 'relative';
 
   // Board wrap frame (thick stroke background)
   const bgSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   bgSvg.style.position = 'absolute';
-  bgSvg.style.inset    = '0';
-  bgSvg.style.width    = '100%';
-  bgSvg.style.height   = '100%';
-  bgSvg.style.zIndex   = '0';
+  bgSvg.style.inset = '0';
+  bgSvg.style.width = '100%';
+  bgSvg.style.height = '100%';
+  bgSvg.style.zIndex = '0';
   bgSvg.style.overflow = 'visible';
   gridEl.appendChild(bgSvg);
 
@@ -68,21 +70,21 @@ export function initGrid() {
     bgPoly.setAttribute('points', pointsStr(corners));
     bgPoly.style.fill = 'var(--grid-bg)';
     bgPoly.style.stroke = 'var(--grid-bg)';
-    bgPoly.style.strokeWidth = '20'; 
+    bgPoly.style.strokeWidth = '20';
     bgPoly.style.strokeLinejoin = 'round';
     bgSvg.appendChild(bgPoly);
 
     const div = document.createElement('div');
-    div.className    = 'hex-cell';
-    div.dataset.q    = q;
-    div.dataset.r    = r;
+    div.className = 'hex-cell';
+    div.dataset.q = q;
+    div.dataset.r = r;
     div.style.position = 'absolute';
     const wSize = (HEX_SIZE * 2) * 0.866;
     const hSize = (HEX_SIZE * 2);
 
-    div.style.left   = (cx - wSize / 2) + 'px';
-    div.style.top    = (cy - hSize / 2) + 'px';
-    div.style.width  = wSize + 'px';
+    div.style.left = (cx - wSize / 2) + 'px';
+    div.style.top = (cy - hSize / 2) + 'px';
+    div.style.width = wSize + 'px';
     div.style.height = hSize + 'px';
     div.style.zIndex = '1';
 
@@ -97,9 +99,9 @@ export function initGrid() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.classList.add('cell-bg');
     svg.style.position = 'absolute';
-    svg.style.inset    = '0';
-    svg.style.width    = '100%';
-    svg.style.height   = '100%';
+    svg.style.inset = '0';
+    svg.style.width = '100%';
+    svg.style.height = '100%';
     svg.style.overflow = 'visible';
 
     const relCorners = corners.map(p => ({
@@ -116,7 +118,7 @@ export function initGrid() {
     const val = document.createElement('div');
     val.className = 'cell-value';
     val.style.zIndex = '3';
-    
+
     // Inner vibrant face (for the 3D grid effect matching pieces)
     const INSET = 3;
     const Ri = HEX_SIZE - INSET;
@@ -162,8 +164,8 @@ export function updateGridDisplay() {
       div.style.background = 'none';
       innerFace.style.display = 'none';
       poly.style.display = 'block';
-      poly.style.fill        = 'var(--cell-bg)';
-      poly.style.stroke      = 'var(--cell-border)';
+      poly.style.fill = 'var(--cell-bg)';
+      poly.style.stroke = 'var(--cell-border)';
       poly.style.strokeWidth = '2';
       val.textContent = '';
     }
