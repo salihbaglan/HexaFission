@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Hex 2048</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="scores-container">
+    <div class="score-box" id="current-score-box">
+      <img src="assets/images/Score_healt.png" alt="heart">
+      <span id="score-display">0</span>
+    </div>
+    <div class="score-box" id="best-score-box">
+      <img id="crown-img" src="" alt="crown">
+      <span id="best-val">0</span>
+    </div>
+  </div>
+  <button id="settings-btn">⚙</button>
+</div>
+
+<!-- GRID -->
+<div id="grid-container">
+  <div id="hex-grid"></div>
+</div>
+
+<!-- TRAY -->
+<div id="tray">
+  <div class="tray-slot" id="slot-0"></div>
+  <div class="tray-slot" id="slot-1"></div>
+  <div class="tray-slot" id="slot-2"></div>
+</div>
+
+<!-- DRAG GHOST -->
+<div id="drag-ghost"></div>
+
+<!-- SETTINGS -->
+<div id="settings-panel">
+  <button id="close-settings">✕</button>
+  <h3>Ayarlar</h3>
+  <div class="setting-row">
+    <span>Müzik</span>
+    <div class="toggle on" id="toggle-music"></div>
+  </div>
+  <div class="setting-row">
+    <span>Ses Efektleri</span>
+    <div class="toggle on" id="toggle-sfx"></div>
+  </div>
+  <div class="setting-row">
+    <span>Titreşim</span>
+    <div class="toggle on" id="toggle-vib"></div>
+  </div>
+  <br>
+  <button class="btn btn-primary" id="restart-btn" style="width:100%;margin-top:20px">Yeni Oyun</button>
+</div>
+
+<!-- OVERLAY -->
+<div id="overlay">
+  <div id="modal">
+    <h2>OYUN BİTTİ!</h2>
+    <div class="modal-score" id="modal-score">0</div>
+    <p>Tahta doldu, tile yerleştirilemez.</p>
+    <button class="btn btn-primary" id="play-again-btn">Tekrar Oyna</button>
+  </div>
+</div>
+
+<script type="module" src="js/game.js"></script>
+
+</body>
+</html>
