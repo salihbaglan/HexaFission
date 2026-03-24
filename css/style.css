@@ -558,14 +558,14 @@ body {
 
 .item-count {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -2px;
+  right: -2px;
   background: #e74c3c;
   color: white;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 900;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -579,11 +579,45 @@ body {
 }
 
 /* Item Source Selection Highlight */
-/* Item Source Selection Highlight */
 .item-source-highlight {
   filter: drop-shadow(0 0 15px var(--accent)) brightness(1.2) !important;
   transform: scale(1.1) !important;
   z-index: 30 !important;
+}
+
+/* Item Overlay for dimming */
+#item-focus-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#item-focus-overlay.show {
+  opacity: 1;
+}
+
+#item-focus-text {
+  color: white;
+  font-size: 20px;
+  font-weight: 900;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+  text-align: center;
+  background: rgba(20,30,80,0.6);
+  padding: 10px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+body.item-active-mode #grid-container {
+  z-index: 110;
 }
 
 /* --------------------------

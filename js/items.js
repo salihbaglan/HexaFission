@@ -51,16 +51,12 @@ function onItemBtnClick(itemType) {
     return;
   }
 
-  if (state.activeItem === itemType) {
-    // Cancel
-    state.activeItem = null;
-    state.changeSourceKey = null;
-    clearSourceHighlight();
-  } else {
-    state.activeItem = itemType;
-    state.changeSourceKey = null;
-    clearSourceHighlight();
-  }
+  if (state.activeItem) return; // Once active, no backing out
+  
+  state.activeItem = itemType;
+  state.changeSourceKey = null;
+  clearSourceHighlight();
+
   updateItemUI();
 }
 
@@ -124,6 +120,30 @@ export function updateItemUI() {
   // but if 0 count, we just show 0 and disable the hover scale until they get more
   btnChange.style.opacity = (state.itemChangeCount <= 0 && state.activeItem !== 'CHANGE') ? '0.6' : '1';
   btnRemove.style.opacity = (state.itemRemoveCount <= 0 && state.activeItem !== 'REMOVE') ? '0.6' : '1';
+  
+  const overlay = document.getElementById('item-focus-overlay');
+  const text = document.getElementById('item-focus-text');
+
+  if (state.activeItem) {
+    document.body.classList.add('item-active-mode');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      setTimeout(() => overlay.classList.add('show'), 10);
+      if (state.activeItem === 'CHANGE') {
+        text.textContent = state.changeSourceKey ? "Select second hexagon" : "Select first hexagon";
+      } else {
+        text.textContent = "Select a hexagon to remove";
+      }
+    }
+  } else {
+    document.body.classList.remove('item-active-mode');
+    if (overlay) {
+      overlay.classList.remove('show');
+      setTimeout(() => {
+        if (!state.activeItem) overlay.style.display = 'none';
+      }, 300);
+    }
+  }
 }
 
 export function clearSourceHighlight() {
@@ -156,12 +176,11 @@ export async function handleItemClick(key) {
       state.changeSourceKey = key;
       state.cellElements[key].div.classList.add('item-source-highlight');
       playSound('ClickTile', false, 0.8);
+      updateItemUI();
     } else {
       const srcKey = state.changeSourceKey;
       if (srcKey === key) {
-        state.changeSourceKey = null;
-        clearSourceHighlight();
-        playSound('ClickTile', false, 0.5);
+        // Can't cancel selection of the first cell
         return;
       }
 
