@@ -118,6 +118,13 @@ async function init() {
   initUI(restartGame);
   initItems();
   
+  // Guarantee a minimum visual time for the loading animation cascade before dismissing it
+  if (typeof window.hideLoadingScreen === 'function') {
+    setTimeout(() => {
+      window.hideLoadingScreen();
+    }, 2000); // 2 seconds total, guaranteeing ~1 second of static fully formed grid before it disappears
+  }
+  
   // Resize: grid'i yeniden oluştur
   window.addEventListener('resize', () => {
     initGrid();
