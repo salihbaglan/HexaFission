@@ -48,15 +48,20 @@ body {
 }
 
 .score-box {
+  /* Common base, transparent background */
   position: relative;
   display: flex;
   align-items: center;
+}
+
+#current-score-box {
   justify-content: center;
   width: 60px;
   height: 60px;
+  margin-bottom: 10px;
 }
 
-.score-box img {
+#current-score-box img {
   position: absolute;
   top: 0; left: 0;
   width: 100%;
@@ -65,14 +70,32 @@ body {
   z-index: 1;
 }
 
-.score-box span {
+#current-score-box span {
   position: relative;
   z-index: 2;
   font-size: 18px;
   font-weight: 900;
   color: var(--text);
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-  margin-top: -4px; /* Slight visual adjustment to center in most icons */
+  margin-top: -4px;
+}
+
+#best-score-box {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+#best-score-box img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+#best-score-box span {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 #settings-btn {
@@ -93,6 +116,7 @@ body {
 #grid-container {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
