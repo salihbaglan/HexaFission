@@ -98,36 +98,60 @@ function cleanupDrag() {
 
 function highlightHexUnder(x, y) {
   clearHighlights();
-  
-  const key = getHexKeyAtScreen(x, y);
-  if (!key || state.grid[key] !== 0 || !dragInfo) return;
+  if (!dragInfo) return;
 
   const { slotIdx } = dragInfo;
   const tile = state.trayTiles[slotIdx];
   if (!tile) return;
 
-  highlightedKeys.push(key);
+  const visualY = y - 8; // Ghost'un translateY(-8px) ofseti
 
-  if (tile.double && tile.secondValue) {
-    const [q, r] = key.split(',').map(Number);
-    const neighbors = hexNeighbors(q, r);
-    for (const [nq, nr] of neighbors) {
-      const nkey = `${nq},${nr}`;
-      if (state.grid[nkey] === 0) {
-        highlightedKeys.push(nkey);
-        break;
-      }
+  if (!tile.double) {
+    const key = getHexKeyAtScreen(x, visualY);
+    if (key && state.grid[key] === 0) {
+      highlightedKeys.push(key);
+      state.cellElements[key].div.classList.add('drop-target');
     }
-    // Cannot fit the second piece anywhere? Deny placement.
-    if (highlightedKeys.length === 1) {
-      highlightedKeys = [];
-      return;
-    }
+    return;
   }
 
-  highlightedKeys.forEach(k => {
-    state.cellElements[k].div.classList.add('drop-target');
-  });
+  // Çift Parça Mantığı (Rijit Puzzle)
+  const pieceSize = 42; 
+  const wStep = pieceSize * 0.866 * 0.6; 
+  const hStep = pieceSize * 0.5;
+  const scale = 1.15;
+
+  let px0, py0;
+  if (tile.orientation === 'H') {
+    px0 = x - wStep * scale; // İlk parça sol tarafta
+    py0 = visualY;
+  } else {
+    px0 = x + (wStep * 0.5) * scale; // İlk parça üst-sağ tarafta
+    py0 = visualY - (hStep * 1.2) * scale;
+  }
+
+  const key0 = getHexKeyAtScreen(px0, py0);
+  if (!key0 || state.grid[key0] !== 0) return;
+
+  const [q, r] = key0.split(',').map(Number);
+  let q1, r1;
+  
+  if (tile.orientation === 'H') {
+    // Piece 0 solda, Piece 1 sağda -> yön [q+1, r]
+    q1 = q + 1;
+    r1 = r;
+  } else {
+    // Piece 0 üst-sağ, Piece 1 alt-sol -> yön [q-1, r+1]
+    q1 = q - 1;
+    r1 = r + 1;
+  }
+
+  const key1 = `${q1},${r1}`;
+  if (state.grid[key1] === 0) {
+    highlightedKeys.push(key0, key1);
+    state.cellElements[key0].div.classList.add('drop-target');
+    state.cellElements[key1].div.classList.add('drop-target');
+  }
 }
 
 function clearHighlights() {

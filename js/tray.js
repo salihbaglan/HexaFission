@@ -1,5 +1,5 @@
 // ==================== TRAY ====================
-import { getTileColor } from './config.js';
+import { getTileColor, get3DTileBackground } from './config.js';
 import { state } from './gameState.js';
 import { startDrag, startDragTouch } from './drag.js';
 
@@ -27,7 +27,8 @@ export function generateTray() {
     const value       = randomTileValue(vals);
     const isDouble    = Math.random() < 0.3;
     const secondValue = isDouble ? randomTileValue(vals) : null;
-    state.trayTiles[i] = { value, double: isDouble, secondValue };
+    const orientation = isDouble ? (Math.random() < 0.5 ? 'H' : 'V') : null;
+    state.trayTiles[i] = { value, double: isDouble, secondValue, orientation };
   }
   renderTray();
 }
@@ -44,46 +45,101 @@ export function renderTray() {
   }
 }
 
-export function createTileElement(tile, slotIdx) {
-  const wrapper = document.createElement('div');
-  wrapper.style.position       = 'relative';
-  wrapper.style.width          = '100%';
-  wrapper.style.height         = '100%';
-  wrapper.style.display        = 'flex';
-  wrapper.style.alignItems     = 'center';
-  wrapper.style.justifyContent = 'center';
+// Tek hex parçası: dış koyu çerçeve + iç bevel yüzey
+// R = hex circumradius, cx/cy = merkez (px, wrapper içi)
+function buildHexPiece(col, R, cx, cy, fontSize, val) {
+  const INSET = 3;
+  const Ri = R - INSET;
 
-  const col      = getTileColor(tile.value);
-  const size     = tile.double ? 38 : 48;
-  const hSize    = size;
-  const wSize    = size * 0.866; // Altıgen genişlik oranı (0.866)
-  const fontSize = tile.value >= 1000 ? '11px' : tile.value >= 100 ? '13px' : '16px';
+  // Polygon points helper
+  const pts = (radius) =>
+    Array.from({ length: 6 }, (_, i) => {
+      const a = Math.PI / 180 * (60 * i - 30); // pointy-top
+      return `${(50 + radius / (2 * R) * 100 * Math.cos(a)).toFixed(2)}% ${(50 + radius / (2 * R) * 100 * Math.sin(a)).toFixed(2)}%`;
+    }).join(',');
+
+  const w = R * Math.sqrt(3); // hex width for pointy-top
+  const h = R * 2;            // hex height
+
+  const group = document.createElement('div');
+  group.style.cssText = `position:absolute; left:0; top:0; width:0; height:0;`;
+
+  const frame = document.createElement('div');
+  frame.style.cssText = `
+    position:absolute;
+    width:${w}px; height:${h}px;
+    left:${cx - w/2}px; top:${cy - h/2}px;
+    background:${col.shadow};
+    clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  `;
+  group.appendChild(frame);
+
+  const wi = Ri * Math.sqrt(3);
+  const hi = Ri * 2;
+  const face = document.createElement('div');
+  face.className = 'tile-piece';
+  face.style.cssText = `
+    position:absolute;
+    width:${wi}px; height:${hi}px;
+    left:${cx - wi/2}px; top:${cy - hi/2}px;
+    background:${get3DTileBackground(col.bg, col.shadow)};
+    clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:${fontSize}; color:white;
+    z-index:1; pointer-events:none;
+  `;
+  face.textContent = val;
+  group.appendChild(face);
+  return group;
+}
+
+export function createTileElement(tile, slotIdx) {
+  const SLOT = 120;
+  const CX   = SLOT / 2;
+  const CY   = SLOT / 2;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
+    position:relative;
+    width:${SLOT}px; height:${SLOT}px;
+    cursor:grab;
+  `;
 
   if (tile.double) {
-    [-1, 1].forEach((off, idx) => {
-      const v    = idx === 0 ? tile.value : tile.secondValue;
-      const c    = getTileColor(v);
-      const piece = document.createElement('div');
-      piece.className            = 'tile-piece';
-      piece.style.width          = wSize + 'px';
-      piece.style.height         = hSize + 'px';
-      piece.style.background     = `linear-gradient(135deg, ${c.bg}, ${c.shadow})`;
-      piece.style.fontSize       = fontSize;
-      piece.style.position       = 'absolute';
-      piece.style.left           = (50 + off * (wSize/2 + 2) - wSize/2) + 'px';
-      piece.style.top            = (50 - hSize / 2) + 'px';
-      piece.textContent          = v;
-      wrapper.appendChild(piece);
+    // R küçük tut: iki taş yan yana 120px'e sığsın
+    // Yatay mesafe (H) = R * sqrt(3)  → R = 120/2 / sqrt(3) ≈ 34 → çok büyük
+    // Slot 120px → R seç ki 2 taş sığsın: R*sqrt(3)*2 ≤ 120 → R ≤ 34.6 → R=30
+    const R      = 26; // circumradius
+    const hDist  = R * Math.sqrt(3);   // yatay komşu merkez mesafesi
+    const vDistY = R * 1.5;            // diagonal komşu Y mesafesi
+    const vDistX = R * Math.sqrt(3)/2; // diagonal komşu X mesafesi
+
+    const values = [tile.value, tile.secondValue];
+    let positions;
+
+    if (tile.orientation === 'H') {
+      positions = [
+        { cx: CX - hDist / 2, cy: CY },
+        { cx: CX + hDist / 2, cy: CY },
+      ];
+    } else {
+      // V = diagonal: üst-sağ + alt-sol (q+1,r-1 yönü)
+      positions = [
+        { cx: CX + vDistX / 2, cy: CY - vDistY / 2 },
+        { cx: CX - vDistX / 2, cy: CY + vDistY / 2 },
+      ];
+    }
+
+    values.forEach((v, i) => {
+      const col = getTileColor(v);
+      const fs  = v >= 1000 ? '10px' : v >= 100 ? '12px' : '14px';
+      wrapper.appendChild(buildHexPiece(col, R, positions[i].cx, positions[i].cy, fs, v));
     });
   } else {
-    const piece = document.createElement('div');
-    piece.className        = 'tile-piece';
-    piece.style.width      = wSize + 'px';
-    piece.style.height     = hSize + 'px';
-    piece.style.background = `linear-gradient(135deg, ${col.bg}, ${col.shadow})`;
-    piece.style.fontSize   = fontSize;
-    piece.textContent      = tile.value;
-    wrapper.appendChild(piece);
+    const R   = 36;
+    const col = getTileColor(tile.value);
+    const fs  = tile.value >= 1000 ? '12px' : tile.value >= 100 ? '14px' : '17px';
+    wrapper.appendChild(buildHexPiece(col, R, CX, CY, fs, tile.value));
   }
 
   wrapper.addEventListener('mousedown',  (e) => startDrag(e, slotIdx, wrapper));

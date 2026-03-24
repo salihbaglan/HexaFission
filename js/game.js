@@ -46,8 +46,8 @@ function placeTileOnGrid(keys, tile, slotIdx) {
   slot.innerHTML = '';
 
   // Run merge chain
-  setTimeout(() => {
-    doMerges();
+  setTimeout(async () => {
+    await doMerges(keys);
     updateMaxGridVal();
 
     const allEmpty = state.trayTiles.every(t => t === null);
@@ -108,19 +108,18 @@ async function init() {
   initDrag(onHexDrop);
   initUI(restartGame);
   
-  // First interaction starts audio
+  // First interaction starts audio (NOT tray generation)
   const startAudio = () => {
     resumeAudioCtx();
     playSound('GameStart', false, 0.8);
     startBgMusic();
-    generateTray();
     document.removeEventListener('click', startAudio);
     document.removeEventListener('touchstart', startAudio);
   };
   document.addEventListener('click', startAudio);
   document.addEventListener('touchstart', startAudio);
 
-  generateTray();
+  generateTray(); // Generate tray once on load
 }
 
 // Start game

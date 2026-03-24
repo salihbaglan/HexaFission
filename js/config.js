@@ -23,3 +23,23 @@ export function getTileColor(val) {
   if (TILE_COLORS[val]) return TILE_COLORS[val];
   return { bg: '#7986cb', shadow: '#3949ab' };
 }
+
+export function get3DTileBackground(bg, shadow) {
+  // Katman 1: Üst-sol aydınlık / Alt-sağ koyu bevel (kabartma/3D efekti)
+  const bevel = `linear-gradient(145deg,
+    rgba(255,255,255,0.55) 0%,
+    rgba(255,255,255,0.20) 20%,
+    rgba(0,0,0,0) 50%,
+    rgba(0,0,0,0.30) 85%,
+    rgba(0,0,0,0.45) 100%
+  )`;
+
+  // Katman 2: Dışta koyu çerçeve, içe doğru ana renk geçişi (iç panel hissi)
+  const inner = `radial-gradient(ellipse at 50% 45%,
+    ${bg} 0%,
+    ${bg} 45%,
+    ${shadow} 100%
+  )`;
+
+  return `${bevel}, ${inner}`;
+}

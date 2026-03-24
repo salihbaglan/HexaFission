@@ -1,5 +1,4 @@
-// ==================== GRID ====================
-import { HEX_SIZE, getTileColor } from './config.js';
+import { HEX_SIZE, getTileColor, get3DTileBackground } from './config.js';
 import { hexToPixel, hexCorners, pointsStr } from './hexMath.js';
 import { state } from './gameState.js';
 
@@ -35,8 +34,6 @@ export function initGrid() {
   bgSvg.style.height   = '100%';
   bgSvg.style.zIndex   = '0';
   bgSvg.style.overflow = 'visible';
-  // Dış karanlık gölge sildik, yerine gönderdiğiniz resimdeki gibi aydınlık bir 3 boyutlu geçiş (bevel) dış çizgisi ekledik
-  bgSvg.style.filter   = 'drop-shadow(0 6px 0 rgba(255, 255, 255, 0.15))';
   gridEl.appendChild(bgSvg);
 
   state.hexPositions.forEach(([q, r]) => {
@@ -61,10 +58,13 @@ export function initGrid() {
     div.dataset.q    = q;
     div.dataset.r    = r;
     div.style.position = 'absolute';
-    div.style.left   = (cx - HEX_SIZE) + 'px';
-    div.style.top    = (cy - HEX_SIZE) + 'px';
-    div.style.width  = (HEX_SIZE * 2) + 'px';
-    div.style.height = (HEX_SIZE * 2) + 'px';
+    const wSize = (HEX_SIZE * 2) * 0.866;
+    const hSize = (HEX_SIZE * 2);
+
+    div.style.left   = (cx - wSize / 2) + 'px';
+    div.style.top    = (cy - hSize / 2) + 'px';
+    div.style.width  = wSize + 'px';
+    div.style.height = hSize + 'px';
     div.style.zIndex = '1';
 
     // SVG background
@@ -77,8 +77,8 @@ export function initGrid() {
     svg.style.overflow = 'visible';
 
     const relCorners = corners.map(p => ({
-      x: p.x - (cx - HEX_SIZE),
-      y: p.y - (cy - HEX_SIZE),
+      x: p.x - (cx - wSize / 2),
+      y: p.y - (cy - hSize / 2),
     }));
 
     const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -100,17 +100,20 @@ export function initGrid() {
 }
 
 export function updateGridDisplay() {
-  Object.entries(state.cellElements).forEach(([key, { val, poly }]) => {
+  Object.entries(state.cellElements).forEach(([key, { div, val, poly }]) => {
     const v = state.grid[key] || 0;
     if (v > 0) {
       const col = getTileColor(v);
-      poly.style.fill        = col.bg;
-      poly.style.stroke      = col.shadow;
-      poly.style.strokeWidth = '3';
+      // Dış poligon = koyu çerçeve
+      poly.style.fill        = col.shadow;
+      poly.style.strokeWidth = '0';
+      // İç div = 3D bevel yüzeyi
+      div.style.background = get3DTileBackground(col.bg, col.shadow);
       val.textContent = v;
       val.style.fontSize = v >= 1000 ? '11px' : v >= 100 ? '13px' : '15px';
       val.style.color = 'white';
     } else {
+      div.style.background = 'none';
       poly.style.fill        = 'var(--cell-bg)';
       poly.style.stroke      = 'var(--cell-border)';
       poly.style.strokeWidth = '2';
