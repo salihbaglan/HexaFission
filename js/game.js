@@ -8,6 +8,7 @@ import { generateTray, renderTray } from './tray.js';
 import { initDrag } from './drag.js';
 import { doMerges } from './merge.js';
 import { initUI } from './ui.js';
+import { initItems, updateItemUI } from './items.js';
 
 // Setup image assets once
 document.getElementById('crown-img').src = 'assets/images/king_icon.png';
@@ -85,11 +86,18 @@ function restartGame() {
   state.gameOver = false;
   state.maxGridVal = 2;
   state.trayTiles = [null, null, null];
+  
+  state.itemChangeCount = 5;
+  state.itemRemoveCount = 5;
+  state.activeItem = null;
+  state.changeSourceKey = null;
+
   document.getElementById('score-display').textContent = '0';
   document.getElementById('best-val').textContent = state.bestScore;
 
   state.hexPositions.forEach(([q, r]) => { state.grid[`${q},${r}`] = 0; });
   updateGridDisplay();
+  updateItemUI();
 
   for (let i = 0; i < 3; i++) {
     document.getElementById(`slot-${i}`).innerHTML = '';
@@ -108,6 +116,7 @@ async function init() {
   requestAnimationFrame(() => scaleGridToContainer());
   initDrag(onHexDrop);
   initUI(restartGame);
+  initItems();
   
   // Resize: grid'i yeniden oluştur
   window.addEventListener('resize', () => {

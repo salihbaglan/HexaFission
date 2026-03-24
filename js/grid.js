@@ -1,6 +1,7 @@
 import { HEX_SIZE, getTileColor, get3DTileBackground, calcHexSize } from './config.js';
 import { hexToPixel, hexCorners, pointsStr } from './hexMath.js';
 import { state } from './gameState.js';
+import { handleItemClick } from './items.js';
 
 export function scaleGridToContainer() {
   const gridEl = document.getElementById('hex-grid');
@@ -84,6 +85,13 @@ export function initGrid() {
     div.style.width  = wSize + 'px';
     div.style.height = hSize + 'px';
     div.style.zIndex = '1';
+
+    // Item interaction listener
+    div.addEventListener('click', () => {
+      if (state.activeItem) {
+        handleItemClick(key);
+      }
+    });
 
     // SVG background
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

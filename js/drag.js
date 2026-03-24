@@ -19,7 +19,7 @@ export function initDrag(onDropCallback) {
 }
 
 export function startDrag(e, slotIdx, el) {
-  if (state.gameOver || !state.trayTiles[slotIdx]) return;
+  if (state.gameOver || !state.trayTiles[slotIdx] || state.activeItem) return;
   e.preventDefault();
   playSound('ClickTile', false, 0.8);
   _beginDrag(slotIdx, el);
@@ -29,7 +29,7 @@ export function startDrag(e, slotIdx, el) {
 }
 
 export function startDragTouch(e, slotIdx, el) {
-  if (state.gameOver || !state.trayTiles[slotIdx]) return;
+  if (state.gameOver || !state.trayTiles[slotIdx] || state.activeItem) return;
   e.preventDefault();
   playSound('ClickTile', false, 0.8);
   const touch = e.touches[0];

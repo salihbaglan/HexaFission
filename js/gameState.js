@@ -17,4 +17,10 @@ export const state = {
   cellElements: {},    // "q,r" => { div, val, poly, corners, cx, cy }
   gridOffsetX: 0,
   gridOffsetY: 0,
+  
+  // Items
+  itemChangeCount: 5,
+  itemRemoveCount: 5,
+  activeItem: null,       // 'CHANGE' or 'REMOVE' or null
+  changeSourceKey: null,  // stores the first clicked hex key when swapping
 };
