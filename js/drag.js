@@ -232,8 +232,9 @@ function clearHighlights() {
   function getHexKeyAtScreen(x, y) {
     const gridEl = document.getElementById('hex-grid');
     const rect = gridEl.getBoundingClientRect();
-    const lx = x - rect.left;
-    const ly = y - rect.top;
+    const scale = state.gridScale || 1;
+    const lx = (x - rect.left) / scale;
+    const ly = (y - rect.top) / scale;
 
     let bestKey = null, bestDist = Infinity;
     Object.entries(state.cellElements).forEach(([key, { cx, cy }]) => {
