@@ -47,6 +47,7 @@ function _beginDrag(slotIdx, el) {
   ghostEl.style.width = el.offsetWidth + 'px';
   ghostEl.style.height = el.offsetHeight + 'px';
   ghostEl.style.opacity = '0.9';
+  ghostEl.style.transition = 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)';
   ghostEl.style.transform = 'scale(1.15) translateY(-8px)';
   el.style.opacity = '0.3';
 }
@@ -106,53 +107,63 @@ function highlightHexUnder(x, y) {
   const tile = state.trayTiles[slotIdx];
   if (!tile) return;
 
-  const visualY = y - 8; // Ghost'un translateY(-8px) ofseti
+  let isHoveringTarget = false;
+  // If we scale the ghost, we need to know what its visual center is.
+  // Assume it's currently hovered or not, we check with gridScale distance just to be consistent.
+  const visualY = y - 8;
 
   if (!tile.double) {
     const key = getHexKeyAtScreen(x, visualY);
     if (key && state.grid[key] === 0) {
       highlightedKeys.push(key);
       state.cellElements[key].div.classList.add('drop-target');
+      isHoveringTarget = true;
     }
-    return;
-  }
-
-  // Çift Parça Mantığı (Rijit Puzzle)
-  const pieceSize = 42;
-  const wStep = pieceSize * 0.866 * 0.6;
-  const hStep = pieceSize * 0.5;
-  const scale = 1.15;
-
-  let px0, py0;
-  if (tile.orientation === 'H') {
-    px0 = x - wStep * scale; // İlk parça sol tarafta
-    py0 = visualY;
   } else {
-    px0 = x + (wStep * 0.5) * scale; // İlk parça üst-sağ tarafta
-    py0 = visualY - (hStep * 1.2) * scale;
+    // Çift Parça Mantığı (Rijit Puzzle)
+    const R = HEX_SIZE;
+    const hDist = R * Math.sqrt(3);
+    const vDistY = R * 1.5;
+    const vDistX = R * Math.sqrt(3) / 2;
+    
+    // We use state.gridScale because if it snaps, the user wants it to fit perfectly there.
+    const testScale = state.gridScale || 1;
+
+    let px0, py0;
+    if (tile.orientation === 'H') {
+      px0 = x - (hDist / 2) * testScale;
+      py0 = visualY;
+    } else {
+      px0 = x + (vDistX / 2) * testScale;
+      py0 = visualY - (vDistY / 2) * testScale;
+    }
+
+    const key0 = getHexKeyAtScreen(px0, py0);
+    if (key0 && state.grid[key0] === 0) {
+      const [q, r] = key0.split(',').map(Number);
+      let q1, r1;
+      if (tile.orientation === 'H') {
+        q1 = q + 1;
+        r1 = r;
+      } else {
+        q1 = q - 1;
+        r1 = r + 1;
+      }
+
+      const key1 = `${q1},${r1}`;
+      if (state.grid[key1] === 0) {
+        highlightedKeys.push(key0, key1);
+        state.cellElements[key0].div.classList.add('drop-target');
+        state.cellElements[key1].div.classList.add('drop-target');
+        isHoveringTarget = true;
+      }
+    }
   }
 
-  const key0 = getHexKeyAtScreen(px0, py0);
-  if (!key0 || state.grid[key0] !== 0) return;
-
-  const [q, r] = key0.split(',').map(Number);
-  let q1, r1;
-
-  if (tile.orientation === 'H') {
-    // Piece 0 solda, Piece 1 sağda -> yön [q+1, r]
-    q1 = q + 1;
-    r1 = r;
+  if (isHoveringTarget) {
+    ghostEl.style.transform = `scale(${state.gridScale || 1}) translateY(0px)`;
   } else {
-    // Piece 0 üst-sağ, Piece 1 alt-sol -> yön [q-1, r+1]
-    q1 = q - 1;
-    r1 = r + 1;
-  }
-
-  const key1 = `${q1},${r1}`;
-  if (state.grid[key1] === 0) {
-    highlightedKeys.push(key0, key1);
-    state.cellElements[key0].div.classList.add('drop-target');
-    state.cellElements[key1].div.classList.add('drop-target');
+    ghostEl.style.transform = 'scale(1.15) translateY(-8px)';
   }
 
   // Merge öngörüsü

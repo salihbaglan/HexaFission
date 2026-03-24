@@ -114,6 +114,7 @@ async function init() {
     initGrid();
     updateGridDisplay();
     requestAnimationFrame(() => scaleGridToContainer());
+    renderTray();
   });
 
   // First interaction starts audio (NOT tray generation)

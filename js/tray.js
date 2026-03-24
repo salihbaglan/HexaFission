@@ -1,5 +1,5 @@
 // ==================== TRAY ====================
-import { getTileColor, get3DTileBackground } from './config.js';
+import { HEX_SIZE, getTileColor, get3DTileBackground } from './config.js';
 import { state } from './gameState.js';
 import { startDrag, startDragTouch } from './drag.js';
 
@@ -106,13 +106,10 @@ export function createTileElement(tile, slotIdx) {
   `;
 
   if (tile.double) {
-    // R küçük tut: iki taş yan yana 120px'e sığsın
-    // Yatay mesafe (H) = R * sqrt(3)  → R = 120/2 / sqrt(3) ≈ 34 → çok büyük
-    // Slot 120px → R seç ki 2 taş sığsın: R*sqrt(3)*2 ≤ 120 → R ≤ 34.6 → R=30
-    const R      = 26; // circumradius
-    const hDist  = R * Math.sqrt(3);   // yatay komşu merkez mesafesi
-    const vDistY = R * 1.5;            // diagonal komşu Y mesafesi
-    const vDistX = R * Math.sqrt(3)/2; // diagonal komşu X mesafesi
+    const R      = HEX_SIZE; // always use grid hex size
+    const hDist  = R * Math.sqrt(3);   // horizontal neighbor center distance
+    const vDistY = R * 1.5;            // diagonal neighbor Y distance
+    const vDistX = R * Math.sqrt(3)/2; // diagonal neighbor X distance
 
     const values = [tile.value, tile.secondValue];
     let positions;
@@ -123,7 +120,7 @@ export function createTileElement(tile, slotIdx) {
         { cx: CX + hDist / 2, cy: CY },
       ];
     } else {
-      // V = diagonal: üst-sağ + alt-sol (q+1,r-1 yönü)
+      // V = diagonal: top-right + bottom-left
       positions = [
         { cx: CX + vDistX / 2, cy: CY - vDistY / 2 },
         { cx: CX - vDistX / 2, cy: CY + vDistY / 2 },
@@ -136,7 +133,7 @@ export function createTileElement(tile, slotIdx) {
       wrapper.appendChild(buildHexPiece(col, R, positions[i].cx, positions[i].cy, fs, v));
     });
   } else {
-    const R   = 36;
+    const R   = HEX_SIZE;
     const col = getTileColor(tile.value);
     const fs  = tile.value >= 1000 ? '12px' : tile.value >= 100 ? '14px' : '17px';
     wrapper.appendChild(buildHexPiece(col, R, CX, CY, fs, tile.value));

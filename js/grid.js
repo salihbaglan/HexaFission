@@ -106,10 +106,31 @@ export function initGrid() {
     // Value label
     const val = document.createElement('div');
     val.className = 'cell-value';
+    val.style.zIndex = '3';
+    
+    // Inner vibrant face (for the 3D grid effect matching pieces)
+    const INSET = 3;
+    const Ri = HEX_SIZE - INSET;
+    const wi = Ri * Math.sqrt(3);
+    const hi = Ri * 2;
+    const innerFace = document.createElement('div');
+    innerFace.className = 'inner-face';
+    innerFace.style.position = 'absolute';
+    innerFace.style.width = wi + 'px';
+    innerFace.style.height = hi + 'px';
+    innerFace.style.left = (wSize - wi) / 2 + 'px';
+    innerFace.style.top = (hSize - hi) / 2 + 'px';
+    innerFace.style.clipPath = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
+    innerFace.style.zIndex = '2';
+    innerFace.style.pointerEvents = 'none';
+    innerFace.style.display = 'none';
+
+    div.appendChild(svg);
+    div.appendChild(innerFace);
     div.appendChild(val);
 
     gridEl.appendChild(div);
-    state.cellElements[key] = { div, val, poly, corners: relCorners, cx, cy };
+    state.cellElements[key] = { div, val, poly, innerFace, corners: relCorners, cx, cy };
     state.grid[key] = 0;
   });
 
@@ -117,20 +138,21 @@ export function initGrid() {
 }
 
 export function updateGridDisplay() {
-  Object.entries(state.cellElements).forEach(([key, { div, val, poly }]) => {
+  Object.entries(state.cellElements).forEach(([key, { div, val, poly, innerFace }]) => {
     const v = state.grid[key] || 0;
     if (v > 0) {
       const col = getTileColor(v);
-      // Dış poligon = koyu çerçeve
-      poly.style.fill        = col.shadow;
-      poly.style.strokeWidth = '0';
-      // İç div = 3D bevel yüzeyi
-      div.style.background = get3DTileBackground(col.bg, col.shadow);
+      div.style.background = col.shadow;
+      poly.style.display = 'none';
+      innerFace.style.background = get3DTileBackground(col.bg, col.shadow);
+      innerFace.style.display = 'block';
       val.textContent = v;
       val.style.fontSize = v >= 1000 ? '11px' : v >= 100 ? '13px' : '15px';
       val.style.color = 'white';
     } else {
       div.style.background = 'none';
+      innerFace.style.display = 'none';
+      poly.style.display = 'block';
       poly.style.fill        = 'var(--cell-bg)';
       poly.style.stroke      = 'var(--cell-border)';
       poly.style.strokeWidth = '2';
