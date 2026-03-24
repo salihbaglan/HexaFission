@@ -144,28 +144,27 @@ async function animateMerge(group, targetKey, val) {
   group.forEach(k => {
     state.cellElements[k].div.style.opacity = '0'; // orijinali gizle
     
-    if (k !== targetKey) {
-      const cell = state.cellElements[k];
-      const startX = rect.left + cell.cx;
-      const startY = rect.top  + cell.cy;
-      
-      const ghost = document.createElement('div');
-      ghost.className = 'tile-piece'; // şekli css'ten alması için
-      ghost.style.cssText = `
-        position: fixed;
-        width: ${size}px; height: ${size}px;
-        left: ${startX - size / 2}px; top: ${startY - size / 2}px;
-        background: ${get3DTileBackground(col.bg, col.shadow)};
-        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 900; font-size: ${val >= 1000 ? '11px' : val >= 100 ? '13px' : '15px'}; color: white;
-        pointer-events: none; z-index: 50;
-        transition: left ${DURATION}ms ease, top ${DURATION}ms ease;
-      `;
-      ghost.textContent = val;
-      document.body.appendChild(ghost);
-      ghosts[k] = ghost;
-    }
+    // Bütün noktalar için (hedef dahil) ghost oluştur ki animasyon süresince boş görünmesinler
+    const cell = state.cellElements[k];
+    const startX = rect.left + cell.cx;
+    const startY = rect.top  + cell.cy;
+    
+    const ghost = document.createElement('div');
+    ghost.className = 'tile-piece'; // şekli css'ten alması için
+    ghost.style.cssText = `
+      position: fixed;
+      width: ${size}px; height: ${size}px;
+      left: ${startX - size / 2}px; top: ${startY - size / 2}px;
+      background: ${get3DTileBackground(col.bg, col.shadow)};
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: ${val >= 1000 ? '11px' : val >= 100 ? '13px' : '15px'}; color: white;
+      pointer-events: none; z-index: 50;
+      transition: left ${DURATION}ms ease, top ${DURATION}ms ease;
+    `;
+    ghost.textContent = val;
+    document.body.appendChild(ghost);
+    ghosts[k] = ghost;
   });
 
   // En uzaktan yavaşça merkeze doğru birer birer hareket ettir
@@ -196,6 +195,9 @@ async function animateMerge(group, targetKey, val) {
       }
     });
   }
+
+  // Kalan ghost'ları temizle (target olan ve hiç hareket etmeyen vb.)
+  Object.values(ghosts).forEach(ghost => ghost.remove());
 
   // Animasyon bitince asıl hücreleri tekrar geri yükle
   group.forEach(k => {
