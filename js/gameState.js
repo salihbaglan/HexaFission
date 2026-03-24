@@ -28,10 +28,10 @@ export const state = {
   isTutorial: localStorage.getItem('tutorialCompleted') !== 'true',
   tutorialStep: 0,
   tutorialSequence: [
-    { trayIdx: 1, targetKey: "0,0" },
-    { trayIdx: 2, targetKey: "1,0" },
-    { trayIdx: 0, targetKey: "0,1" },
-    { trayIdx: 1, targetKey: "-1,1" },
-    { trayIdx: 2, targetKey: "1,1" },
+    { trayIdx: 1, targetKey: "0,0", text: "Tekli parçayı panonun merkezine sürükle!" },
+    { trayIdx: 2, targetKey: "1,0", text: "Şimdi çiftli parçayı teklinin yanına sürükle ve birleştir! (3 parça 4'e dönüşecek)" },
+    { trayIdx: 0, targetKey: "0,1", text: "Muhteşem! Kalan tekli parçayı boşluğa yerleştir." },
+    { trayIdx: 1, targetKey: "-1,1", text: "Yeni gelen tekliyi önceki parçanın yanına koy." },
+    { trayIdx: 2, targetKey: "1,1", text: "Şimdi çiftliyi sürükleyerek büyük bir zincirleme birleşim (cascade) oluştur ve 8'e ulaş!" },
   ],
 };

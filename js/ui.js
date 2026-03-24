@@ -141,6 +141,29 @@ export function updateTutorialUI() {
   setTimeout(() => {
     hand.style.transform = `translate(${endX}px, ${endY}px)`;
   }, 50);
+
+  let textBox = document.getElementById('tutorial-text-box');
+  if (state.tutorialStep === 0) {
+    if (!textBox) {
+      textBox = document.createElement('div');
+      textBox.id = 'tutorial-text-box';
+      textBox.style.position = 'fixed';
+      textBox.style.top = '40%';
+      textBox.style.left = '50%';
+      textBox.style.transform = 'translate(-50%, -50%)';
+      textBox.style.color = '#ffffff';
+      textBox.style.textShadow = '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 4px 16px rgba(0,0,0,0.6)';
+      textBox.style.fontWeight = '900';
+      textBox.style.fontSize = '64px';
+      textBox.style.textAlign = 'center';
+      textBox.style.zIndex = '9900';
+      textBox.style.pointerEvents = 'none';
+      document.body.appendChild(textBox);
+    }
+    textBox.innerHTML = 'Drag!';
+  } else if (textBox) {
+    textBox.remove();
+  }
 }
 
 export function clearTutorialUI() {
@@ -151,4 +174,6 @@ export function clearTutorialUI() {
   }
   const ghost = document.getElementById('tutorial-ghost');
   if (ghost) ghost.remove();
+  const textBox = document.getElementById('tutorial-text-box');
+  if (textBox) textBox.remove();
 }

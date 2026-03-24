@@ -52,6 +52,9 @@ function _beginDrag(slotIdx, el) {
   ghostEl.style.transition = 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)';
   ghostEl.style.transform = 'scale(1.15) translateY(-8px)';
   el.style.opacity = '0.3';
+  
+  const textBox = document.getElementById('tutorial-text-box');
+  if (textBox) textBox.remove();
 }
 
 function positionGhost(x, y) {
