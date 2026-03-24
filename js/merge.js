@@ -1,5 +1,5 @@
 // ==================== MERGE LOGIC ====================
-import { HEX_SIZE } from './config.js';
+import { HEX_SIZE, getTileColor, get3DTileBackground } from './config.js';
 import { hexNeighbors } from './hexMath.js';
 import { state } from './gameState.js';
 import { updateGridDisplay } from './grid.js';
@@ -47,7 +47,8 @@ export async function doMerges(newKeys = []) {
         }
       }
 
-      await animateMerge(group, targetKey);
+      // Animasyon: diğer taşları merkeze kaydır (sırayla)
+      await animateMerge(group, targetKey, targetVal);
 
       // Skoru hesapla ve uygula — her zaman value * 2 (2048 kuralı)
       const newVal = targetVal * 2;
@@ -61,7 +62,9 @@ export async function doMerges(newKeys = []) {
 
       addScore(newVal); 
       playMergeSound();
-      showMergeBurst(targetKey);
+      
+      const colInfo = getTileColor(newVal);
+      showMergeBurst(targetKey, colInfo.bg);
       showScorePop(newVal, state.cellElements[targetKey]);
 
       updateGridDisplay();
@@ -96,59 +99,107 @@ function floodFill(startKey, val) {
   return group;
 }
 
-// Taşların hedef hücreye doğru kayma animasyonu
-function animateMerge(group, targetKey) {
-  return new Promise(resolve => {
-    const gridEl  = document.getElementById('hex-grid');
-    const rect    = gridEl.getBoundingClientRect();
-    const tCell   = state.cellElements[targetKey];
-    const targetX = rect.left + tCell.cx;
-    const targetY = rect.top  + tCell.cy;
+// BFS ağacı ile merkeze en kısa yolu hesapla (yılan gibi kayması için)
+function getMergePaths(group, targetKey) {
+  const paths = new Map();
+  const dists = new Map();
+  
+  const queue = [targetKey];
+  dists.set(targetKey, 0);
+  paths.set(targetKey, null);
+  
+  const groupSet = new Set(group);
+  
+  while (queue.length > 0) {
+    const curr = queue.shift();
+    const d = dists.get(curr);
+    
+    const [q, r] = curr.split(',').map(Number);
+    for (const [nq, nr] of hexNeighbors(q, r)) {
+      const nkey = `${nq},${nr}`;
+      if (groupSet.has(nkey) && !dists.has(nkey)) {
+        dists.set(nkey, d + 1);
+        paths.set(nkey, curr);
+        queue.push(nkey);
+      }
+    }
+  }
+  return { paths, dists };
+}
 
-    const DURATION = 200; // ms
-    let done = 0;
+// Taşların birbirinin içine sırayla kaydığı animasyon
+async function animateMerge(group, targetKey, val) {
+  const { paths, dists } = getMergePaths(group, targetKey);
+  const maxDist = Math.max(0, ...Array.from(dists.values()));
+  
+  const gridEl = document.getElementById('hex-grid');
+  const rect   = gridEl.getBoundingClientRect();
+  const DURATION = 150; // her adımın ms süresi
 
-    group.forEach(key => {
-      if (key === targetKey) { done++; if (done === group.length) resolve(); return; }
+  const ghosts = {};
+  const col = getTileColor(val);
+  const size = HEX_SIZE * 2;
 
-      const cell = state.cellElements[key];
+  // Asıl taşları sakla ve sahte ghost'lar oluştur
+  group.forEach(k => {
+    state.cellElements[k].div.style.opacity = '0'; // orijinali gizle
+    
+    if (k !== targetKey) {
+      const cell = state.cellElements[k];
       const startX = rect.left + cell.cx;
       const startY = rect.top  + cell.cy;
-      const size   = HEX_SIZE * 2;
-
+      
       const ghost = document.createElement('div');
+      ghost.className = 'tile-piece'; // şekli css'ten alması için
       ghost.style.cssText = `
         position: fixed;
         width: ${size}px; height: ${size}px;
-        left: ${startX - size / 2}px;
-        top:  ${startY - size / 2}px;
-        background: ${cell.div.style.background};
+        left: ${startX - size / 2}px; top: ${startY - size / 2}px;
+        background: ${get3DTileBackground(col.bg, col.shadow)};
         clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        pointer-events: none;
-        z-index: 999;
-        transition: left ${DURATION}ms ease, top ${DURATION}ms ease, opacity ${DURATION}ms ease;
-        opacity: 1;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 900; font-size: ${val >= 1000 ? '11px' : val >= 100 ? '13px' : '15px'}; color: white;
+        pointer-events: none; z-index: 50;
+        transition: left ${DURATION}ms ease, top ${DURATION}ms ease;
       `;
+      ghost.textContent = val;
       document.body.appendChild(ghost);
+      ghosts[k] = ghost;
+    }
+  });
 
-      // Temporarily hide source tile
-      cell.div.style.opacity = '0';
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          ghost.style.left    = (targetX - size / 2) + 'px';
-          ghost.style.top     = (targetY - size / 2) + 'px';
-          ghost.style.opacity = '0';
-
-          setTimeout(() => {
-            ghost.remove();
-            cell.div.style.opacity = '1';
-            done++;
-            if (done === group.length) resolve();
-          }, DURATION);
-        });
-      });
+  // En uzaktan yavaşça merkeze doğru birer birer hareket ettir
+  for (let d = maxDist; d > 0; d--) {
+    const nodesAtD = group.filter(k => dists.get(k) === d);
+    
+    // d uzaklığındaki taşları, kendi parent'ı olan d-1 taşına doğru kaydır
+    nodesAtD.forEach(k => {
+      const parentKey = paths.get(k);
+      const parentCell = state.cellElements[parentKey];
+      const targetX = rect.left + parentCell.cx;
+      const targetY = rect.top  + parentCell.cy;
+      
+      const ghost = ghosts[k];
+      if (ghost) {
+        ghost.style.left = (targetX - size / 2) + 'px';
+        ghost.style.top  = (targetY - size / 2) + 'px';
+      }
     });
+    
+    await sleep(DURATION); // animasyonu bekle
+    
+    // Hareketi biten taşları yokederek birleşme hissi ver
+    nodesAtD.forEach(k => {
+      if (ghosts[k]) {
+        ghosts[k].remove();
+        delete ghosts[k];
+      }
+    });
+  }
+
+  // Animasyon bitince asıl hücreleri tekrar geri yükle
+  group.forEach(k => {
+    state.cellElements[k].div.style.opacity = '1';
   });
 }
 
@@ -166,7 +217,7 @@ export function addScore(val) {
   }
 }
 
-export function showMergeBurst(key) {
+export function showMergeBurst(key, colorStr) {
   const { cx, cy } = state.cellElements[key];
   const gridEl = document.getElementById('hex-grid');
   const rect   = gridEl.getBoundingClientRect();
@@ -177,11 +228,12 @@ export function showMergeBurst(key) {
   burst.style.cssText = `
     width:${bSize}px; height:${bSize}px;
     border-radius:50%;
-    background: radial-gradient(circle, rgba(255,255,180,0.9), transparent 70%);
+    background: radial-gradient(circle, ${colorStr} 30%, transparent 80%);
     left:${rect.left + cx - bSize / 2}px;
     top:${rect.top + cy - bSize / 2}px;
     position:fixed;
     pointer-events: none;
+    z-index: 100;
   `;
   document.body.appendChild(burst);
   setTimeout(() => burst.remove(), 500);
