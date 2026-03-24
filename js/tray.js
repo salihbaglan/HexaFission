@@ -55,6 +55,8 @@ export function createTileElement(tile, slotIdx) {
 
   const col      = getTileColor(tile.value);
   const size     = tile.double ? 38 : 48;
+  const hSize    = size;
+  const wSize    = size * 0.866; // Altıgen genişlik oranı (0.866)
   const fontSize = tile.value >= 1000 ? '11px' : tile.value >= 100 ? '13px' : '16px';
 
   if (tile.double) {
@@ -63,21 +65,21 @@ export function createTileElement(tile, slotIdx) {
       const c    = getTileColor(v);
       const piece = document.createElement('div');
       piece.className            = 'tile-piece';
-      piece.style.width          = size + 'px';
-      piece.style.height         = size + 'px';
+      piece.style.width          = wSize + 'px';
+      piece.style.height         = hSize + 'px';
       piece.style.background     = `linear-gradient(135deg, ${c.bg}, ${c.shadow})`;
       piece.style.fontSize       = fontSize;
       piece.style.position       = 'absolute';
-      piece.style.left           = (50 + off * 22 - size / 2) + 'px';
-      piece.style.top            = (50 - size / 2) + 'px';
+      piece.style.left           = (50 + off * (wSize/2 + 2) - wSize/2) + 'px';
+      piece.style.top            = (50 - hSize / 2) + 'px';
       piece.textContent          = v;
       wrapper.appendChild(piece);
     });
   } else {
     const piece = document.createElement('div');
     piece.className        = 'tile-piece';
-    piece.style.width      = size + 'px';
-    piece.style.height     = size + 'px';
+    piece.style.width      = wSize + 'px';
+    piece.style.height     = hSize + 'px';
     piece.style.background = `linear-gradient(135deg, ${col.bg}, ${col.shadow})`;
     piece.style.fontSize   = fontSize;
     piece.textContent      = tile.value;

@@ -123,19 +123,18 @@ body {
 /* TILE PIECE */
 .tile-piece {
   position: absolute;
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
   color: white;
   text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
   cursor: grab;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.15s;
   z-index: 10;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
-.tile-piece:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+.tile-piece:hover { transform: scale(1.05) translateY(-2px); }
 .tile-piece:active { cursor: grabbing; }
 
 /* TRAY */
@@ -152,13 +151,10 @@ body {
 .tray-slot {
   width: 120px;
   height: 120px;
-  background: rgba(0,0,0,0.15);
-  border-radius: 16px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed rgba(255,255,255,0.1);
 }
 
 /* DRAGGING GHOST */
