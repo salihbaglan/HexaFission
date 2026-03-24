@@ -20,6 +20,7 @@ export function initDrag(onDropCallback) {
 
 export function startDrag(e, slotIdx, el) {
   if (state.gameOver || !state.trayTiles[slotIdx] || state.activeItem) return;
+  if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].trayIdx !== slotIdx) return;
   e.preventDefault();
   playSound('ClickTile', false, 0.8);
   _beginDrag(slotIdx, el);
@@ -30,6 +31,7 @@ export function startDrag(e, slotIdx, el) {
 
 export function startDragTouch(e, slotIdx, el) {
   if (state.gameOver || !state.trayTiles[slotIdx] || state.activeItem) return;
+  if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].trayIdx !== slotIdx) return;
   e.preventDefault();
   playSound('ClickTile', false, 0.8);
   const touch = e.touches[0];
@@ -114,7 +116,11 @@ function highlightHexUnder(x, y) {
 
   if (!tile.double) {
     const key = getHexKeyAtScreen(x, visualY);
-    if (key && state.grid[key] === 0) {
+    let allowed = true;
+    if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].targetKey !== key) {
+      allowed = false;
+    }
+    if (key && state.grid[key] === 0 && allowed) {
       highlightedKeys.push(key);
       state.cellElements[key].div.classList.add('drop-target');
       isHoveringTarget = true;
@@ -139,7 +145,11 @@ function highlightHexUnder(x, y) {
     }
 
     const key0 = getHexKeyAtScreen(px0, py0);
-    if (key0 && state.grid[key0] === 0) {
+    let allowed = true;
+    if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].targetKey !== key0) {
+      allowed = false;
+    }
+    if (key0 && state.grid[key0] === 0 && allowed) {
       const [q, r] = key0.split(',').map(Number);
       let q1, r1;
       if (tile.orientation === 'H') {

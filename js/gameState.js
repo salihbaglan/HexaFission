@@ -23,4 +23,15 @@ export const state = {
   itemRemoveCount: 5,
   activeItem: null,       // 'CHANGE' or 'REMOVE' or null
   changeSourceKey: null,  // stores the first clicked hex key when swapping
+  
+  // Tutorial
+  isTutorial: localStorage.getItem('tutorialCompleted') !== 'true',
+  tutorialStep: 0,
+  tutorialSequence: [
+    { trayIdx: 1, targetKey: "0,0" },
+    { trayIdx: 2, targetKey: "1,0" },
+    { trayIdx: 0, targetKey: "0,1" },
+    { trayIdx: 1, targetKey: "-1,1" },
+    { trayIdx: 2, targetKey: "1,1" },
+  ],
 };

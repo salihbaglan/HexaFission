@@ -7,7 +7,7 @@ import { initGrid, updateGridDisplay, scaleGridToContainer } from './grid.js';
 import { generateTray, renderTray } from './tray.js';
 import { initDrag } from './drag.js';
 import { doMerges } from './merge.js';
-import { initUI } from './ui.js';
+import { initUI, updateTutorialUI, clearTutorialUI } from './ui.js';
 import { initItems, updateItemUI } from './items.js';
 
 // Setup image assets once
@@ -45,6 +45,17 @@ function placeTileOnGrid(keys, tile, slotIdx) {
   state.trayTiles[slotIdx] = null;
   const slot = document.getElementById(`slot-${slotIdx}`);
   slot.innerHTML = '';
+
+  if (state.isTutorial) {
+    state.tutorialStep++;
+    if (state.tutorialStep >= state.tutorialSequence.length) {
+      state.isTutorial = false;
+      localStorage.setItem('tutorialCompleted', 'true');
+      if (typeof clearTutorialUI === 'function') clearTutorialUI();
+    } else {
+      if (typeof updateTutorialUI === 'function') updateTutorialUI();
+    }
+  }
 
   // Run merge chain
   setTimeout(async () => {

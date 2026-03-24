@@ -2,6 +2,7 @@
 import { HEX_SIZE, getTileColor, get3DTileBackground } from './config.js';
 import { state } from './gameState.js';
 import { startDrag, startDragTouch } from './drag.js';
+import { updateTutorialUI } from './ui.js';
 
 export function getMaxTileValue() {
   let vals = [];
@@ -21,16 +22,32 @@ export function randomTileValue(vals) {
 }
 
 export function generateTray() {
-  for (let i = 0; i < 3; i++) {
-    if (state.trayTiles[i] !== null) continue;
-    const vals        = getMaxTileValue();
-    const value       = randomTileValue(vals);
-    const isDouble    = Math.random() < 0.3;
-    const secondValue = isDouble ? randomTileValue(vals) : null;
-    const orientation = isDouble ? (Math.random() < 0.5 ? 'H' : 'V') : null;
-    state.trayTiles[i] = { value, double: isDouble, secondValue, orientation };
+  if (state.isTutorial) {
+    if (state.tutorialStep === 0) {
+      state.trayTiles[0] = { value: 2, double: false, secondValue: null, orientation: null };
+      state.trayTiles[1] = { value: 2, double: false, secondValue: null, orientation: null };
+      state.trayTiles[2] = { value: 2, double: true, secondValue: 2, orientation: 'H' };
+    } else if (state.tutorialStep === 3) {
+      state.trayTiles[0] = null; 
+      state.trayTiles[1] = { value: 2, double: false, secondValue: null, orientation: null };
+      state.trayTiles[2] = { value: 2, double: true, secondValue: 2, orientation: 'H' };
+    }
+  } else {
+    for (let i = 0; i < 3; i++) {
+      if (state.trayTiles[i] !== null) continue;
+      const vals        = getMaxTileValue();
+      const value       = randomTileValue(vals);
+      const isDouble    = Math.random() < 0.3;
+      const secondValue = isDouble ? randomTileValue(vals) : null;
+      const orientation = isDouble ? (Math.random() < 0.5 ? 'H' : 'V') : null;
+      state.trayTiles[i] = { value, double: isDouble, secondValue, orientation };
+    }
   }
   renderTray();
+
+  if (state.isTutorial && typeof updateTutorialUI === 'function') {
+    updateTutorialUI();
+  }
 }
 
 export function renderTray() {
