@@ -138,7 +138,8 @@ async function animateMerge(group, targetKey, val) {
 
   const ghosts = {};
   const col = getTileColor(val);
-  const size = HEX_SIZE * 2;
+  const hSize = HEX_SIZE * 2;
+  const wSize = hSize * 0.866;
 
   // Asıl taşları sakla ve sahte ghost'lar oluştur
   group.forEach(k => {
@@ -146,24 +147,42 @@ async function animateMerge(group, targetKey, val) {
     
     // Bütün noktalar için (hedef dahil) ghost oluştur ki animasyon süresince boş görünmesinler
     const cell = state.cellElements[k];
-    const startX = rect.left + cell.cx;
-    const startY = rect.top  + cell.cy;
+    const startX = cell.cx;
+    const startY = cell.cy;
     
     const ghost = document.createElement('div');
     ghost.className = 'tile-piece'; // şekli css'ten alması için
     ghost.style.cssText = `
-      position: fixed;
-      width: ${size}px; height: ${size}px;
-      left: ${startX - size / 2}px; top: ${startY - size / 2}px;
+      position: absolute;
+      width: ${wSize}px; height: ${hSize}px;
+      left: ${startX - wSize / 2}px; top: ${startY - hSize / 2}px;
+      background: ${col.shadow};
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      transition: left ${DURATION}ms ease, top ${DURATION}ms ease;
+      pointer-events: none; z-index: 50;
+    `;
+    
+    // Create inner face to match new tile design
+    const INSET = 3;
+    const Ri = HEX_SIZE - INSET;
+    const wi = Ri * 0.866 * 2;
+    const hi = Ri * 2;
+    
+    const innerFace = document.createElement('div');
+    innerFace.style.cssText = `
+      position: absolute;
+      width: ${wi}px; height: ${hi}px;
+      left: ${(wSize - wi) / 2}px; top: ${(hSize - hi) / 2}px;
       background: ${get3DTileBackground(col.bg, col.shadow)};
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
       display: flex; align-items: center; justify-content: center;
       font-weight: 900; font-size: ${val >= 1000 ? '11px' : val >= 100 ? '13px' : '15px'}; color: white;
-      pointer-events: none; z-index: 50;
-      transition: left ${DURATION}ms ease, top ${DURATION}ms ease;
     `;
-    ghost.textContent = val;
-    document.body.appendChild(ghost);
+    innerFace.textContent = val;
+    ghost.appendChild(innerFace);
+    
+    gridEl.appendChild(ghost);
     ghosts[k] = ghost;
   });
 
@@ -175,13 +194,13 @@ async function animateMerge(group, targetKey, val) {
     nodesAtD.forEach(k => {
       const parentKey = paths.get(k);
       const parentCell = state.cellElements[parentKey];
-      const targetX = rect.left + parentCell.cx;
-      const targetY = rect.top  + parentCell.cy;
+      const targetX = parentCell.cx;
+      const targetY = parentCell.cy;
       
       const ghost = ghosts[k];
       if (ghost) {
-        ghost.style.left = (targetX - size / 2) + 'px';
-        ghost.style.top  = (targetY - size / 2) + 'px';
+        ghost.style.left = (targetX - wSize / 2) + 'px';
+        ghost.style.top  = (targetY - hSize / 2) + 'px';
       }
     });
     
@@ -222,7 +241,6 @@ export function addScore(val) {
 export function showMergeBurst(key, colorStr) {
   const { cx, cy } = state.cellElements[key];
   const gridEl = document.getElementById('hex-grid');
-  const rect   = gridEl.getBoundingClientRect();
 
   const burst = document.createElement('div');
   burst.className = 'merge-burst';
@@ -231,25 +249,26 @@ export function showMergeBurst(key, colorStr) {
     width:${bSize}px; height:${bSize}px;
     border-radius:50%;
     background: radial-gradient(circle, ${colorStr} 30%, transparent 80%);
-    left:${rect.left + cx - bSize / 2}px;
-    top:${rect.top + cy - bSize / 2}px;
-    position:fixed;
+    left:${cx - bSize / 2}px;
+    top:${cy - bSize / 2}px;
+    position:absolute;
     pointer-events: none;
     z-index: 100;
   `;
-  document.body.appendChild(burst);
+  gridEl.appendChild(burst);
   setTimeout(() => burst.remove(), 500);
 }
 
 export function showScorePop(val, cellInfo) {
   const gridEl = document.getElementById('hex-grid');
-  const rect   = gridEl.getBoundingClientRect();
   const pop    = document.createElement('div');
   pop.className   = 'score-pop';
   pop.textContent = '+' + val;
-  pop.style.left  = (rect.left + cellInfo.cx - 20) + 'px';
-  pop.style.top   = (rect.top  + cellInfo.cy - 20) + 'px';
+  pop.style.position = 'absolute';
+  pop.style.left  = (cellInfo.cx - 20) + 'px';
+  pop.style.top   = (cellInfo.cy - 20) + 'px';
   pop.style.fontSize = val >= 512 ? '24px' : '18px';
-  document.body.appendChild(pop);
+  pop.style.zIndex = '150';
+  gridEl.appendChild(pop);
   setTimeout(() => pop.remove(), 1000);
 }
