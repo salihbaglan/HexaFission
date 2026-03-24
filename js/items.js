@@ -3,6 +3,7 @@ import { state } from './gameState.js';
 import { updateGridDisplay } from './grid.js';
 import { playSound } from './audio.js';
 import { doMerges } from './merge.js';
+import { showItemTooltip } from './ui.js';
 
 const STORAGE_KEY_CHANGE = 'hex2048_itemChange';
 const STORAGE_KEY_REMOVE = 'hex2048_itemRemove';
@@ -48,6 +49,20 @@ function onItemBtnClick(itemType) {
   if (count <= 0) {
     // Offer ad instead of activating
     _showAdOffer(itemType);
+    return;
+  }
+
+  let placedCount = 0;
+  for (const k in state.grid) {
+    if (state.grid[k] > 0) placedCount++;
+  }
+
+  if (itemType === 'REMOVE' && placedCount < 1) {
+    showItemTooltip("Too few hexagons on board!", 'item-remove-btn');
+    return;
+  }
+  if (itemType === 'CHANGE' && placedCount < 2) {
+    showItemTooltip("Need at least 2 hexagons!", 'item-change-btn');
     return;
   }
 

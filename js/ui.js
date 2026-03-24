@@ -177,3 +177,70 @@ export function clearTutorialUI() {
   const textBox = document.getElementById('tutorial-text-box');
   if (textBox) textBox.remove();
 }
+
+export function showItemTooltip(msg, btnId) {
+  const existing = document.getElementById('item-tooltip');
+  if (existing) existing.remove();
+
+  const tooltip = document.createElement('div');
+  tooltip.id = 'item-tooltip';
+  tooltip.innerHTML = `
+    <div style="
+      background: rgba(231, 76, 60, 0.95);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 14px;
+      font-weight: 900;
+      font-size: 14px;
+      position: relative;
+      text-align: center;
+      line-height: 1.2;
+    ">
+      ${msg}
+      <!-- Triangle pointing down -->
+      <div style="
+        content: '';
+        position: absolute;
+        bottom: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 8px 8px 0;
+        border-style: solid;
+        border-color: rgba(231, 76, 60, 0.95) transparent transparent transparent;
+      "></div>
+    </div>
+  `;
+  
+  tooltip.style.position = 'fixed';
+  tooltip.style.pointerEvents = 'none';
+  tooltip.style.zIndex = '10000';
+  tooltip.style.transformOrigin = 'bottom center';
+  tooltip.style.transform = 'scale(0.3) translateY(20px)';
+  tooltip.style.opacity = '0';
+  tooltip.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out';
+  
+  document.body.appendChild(tooltip);
+
+  const btn = document.getElementById(btnId);
+  const rect = btn.getBoundingClientRect();
+  
+  const tooltipWidth = tooltip.offsetWidth;
+  const tooltipHeight = tooltip.offsetHeight;
+  
+  const btnCenterX = rect.left + rect.width / 2;
+  const topPos = rect.top - tooltipHeight - 4; // 4px spacing
+  
+  tooltip.style.left = Math.max(10, (btnCenterX - tooltipWidth / 2)) + 'px';
+  tooltip.style.top = topPos + 'px';
+
+  // Force reflow and animate in
+  void tooltip.offsetWidth;
+  tooltip.style.transform = 'scale(1) translateY(0)';
+  tooltip.style.opacity = '1';
+
+  setTimeout(() => {
+    tooltip.style.transform = 'scale(0.3) translateY(20px)';
+    tooltip.style.opacity = '0';
+    setTimeout(() => tooltip.remove(), 400);
+  }, 2000);
+}
