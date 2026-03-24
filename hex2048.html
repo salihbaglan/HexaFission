@@ -74,6 +74,18 @@
     <button class="btn btn-primary" id="restart-btn" style="width:100%;margin-top:10px">New Game</button>
   </div>
 
+  <!-- AD OFFER MODAL -->
+  <div id="ad-offer-modal">
+    <div id="ad-modal">
+      <h2>OUT OF USES</h2>
+      <p id="ad-offer-text">Watch a short ad to get +3 free uses.</p>
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:24px;">
+        <button class="btn" id="ad-offer-cancel" style="background:rgba(255,255,255,0.15); color:white; flex:1;">Cancel</button>
+        <button class="btn btn-primary" id="ad-offer-watch" style="flex:1;">Watch Ad</button>
+      </div>
+    </div>
+  </div>
+
   <!-- OVERLAY -->
   <div id="overlay">
     <div id="modal">
@@ -84,6 +96,8 @@
     </div>
   </div>
 
+  <!-- SCRIPTS -->
+  <script src="js/splay-bridge.js"></script>
   <script type="module" src="js/game.js"></script>
 
 </body>

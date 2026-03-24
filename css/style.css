@@ -11,7 +11,10 @@
   --shadow: rgba(0,0,0,0.4);
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+* { 
+  margin:0; padding:0; box-sizing:border-box; 
+  -webkit-tap-highlight-color: transparent;
+}
 
 html, body {
   height: 100%;
@@ -209,7 +212,7 @@ body {
 }
 
 /* GAME OVER / MODAL */
-#overlay {
+#overlay, #ad-offer-modal {
   position: fixed;
   inset: 0;
   background: rgba(20,30,80,0.85);
@@ -219,9 +222,9 @@ body {
   z-index: 500;
   backdrop-filter: blur(4px);
 }
-#overlay.show { display: flex; }
+#overlay.show, #ad-offer-modal.show { display: flex; }
 
-#modal {
+#modal, #ad-modal {
   background: linear-gradient(135deg, #3a4f95, #2a3a7a);
   border-radius: 24px;
   padding: 40px 32px;
@@ -231,7 +234,7 @@ body {
   min-width: 280px;
 }
 
-#modal h2 {
+#modal h2, #ad-modal h2 {
   font-size: 32px;
   font-weight: 900;
   color: var(--accent);
@@ -419,11 +422,12 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  outline: none;
 }
 
 .item-btn img {
-  width: 80%;
-  height: 80%;
+  width: 70%;
+  height: 70%;
   object-fit: contain;
   transition: transform 0.2s;
 }
@@ -434,10 +438,10 @@ body {
 }
 
 .item-btn.active-item {
-  background: rgba(245, 197, 66, 0.4); /* very soft accent background */
-  box-shadow: 0 0 15px rgba(245, 197, 66, 0.8), inset 0 0 10px rgba(245, 197, 66, 0.5);
+  transform: scale(1.15);
+  background: rgba(245, 197, 66, 0.3);
+  box-shadow: inset 0 0 10px rgba(245, 197, 66, 0.5);
   border: 2px solid var(--accent);
-  transform: scale(1.1);
 }
 
 .item-count {
@@ -454,8 +458,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--bg);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .item-btn.disabled {
