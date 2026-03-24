@@ -77,7 +77,7 @@ export async function doMerges(newKeys = []) {
 }
 
 // Aynı değer ve bitişik hücreleri bul (BFS flood-fill)
-function floodFill(startKey, val) {
+export function floodFill(startKey, val) {
   const group = [];
   const queue = [startKey];
   const seen  = new Set([startKey]);
