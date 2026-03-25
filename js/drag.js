@@ -25,6 +25,7 @@ export function startDrag(e, slotIdx, el) {
   playSound('ClickTile', false, 0.8);
   _beginDrag(slotIdx, el);
   positionGhost(e.clientX, e.clientY);
+  highlightHexUnder(e.clientX, e.clientY);
   document.addEventListener('mousemove', onDragMove);
   document.addEventListener('mouseup', onDragEnd);
 }
@@ -37,6 +38,7 @@ export function startDragTouch(e, slotIdx, el) {
   const touch = e.touches[0];
   _beginDrag(slotIdx, el);
   positionGhost(touch.clientX, touch.clientY);
+  highlightHexUnder(touch.clientX, touch.clientY);
   document.addEventListener('touchmove', onDragMoveTouch, { passive: false });
   document.addEventListener('touchend', onDragEndTouch);
 }
@@ -57,9 +59,11 @@ function _beginDrag(slotIdx, el) {
   if (textBox) textBox.remove();
 }
 
+const DRAG_OFFSET_Y = 75; // Parmağın altında kalmaması için yukarı kaydırma
+
 function positionGhost(x, y) {
   ghostEl.style.left = (x - ghostEl.offsetWidth / 2) + 'px';
-  ghostEl.style.top = (y - ghostEl.offsetHeight / 2) + 'px';
+  ghostEl.style.top = (y - DRAG_OFFSET_Y - ghostEl.offsetHeight / 2) + 'px';
 }
 
 function onDragMove(e) {
@@ -113,9 +117,8 @@ function highlightHexUnder(x, y) {
   if (!tile) return;
 
   let isHoveringTarget = false;
-  // If we scale the ghost, we need to know what its visual center is.
-  // Assume it's currently hovered or not, we check with gridScale distance just to be consistent.
-  const visualY = y - 8;
+  // Tile'ın görsel merkezi parmağın DRAG_OFFSET_Y kadar üstünde
+  const visualY = y - DRAG_OFFSET_Y;
 
   if (!tile.double) {
     const key = getHexKeyAtScreen(x, visualY);
