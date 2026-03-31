@@ -1,0 +1,41 @@
+@media (min-aspect-ratio: 1/1) {
+  body {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #grid-container {
+    height: 100dvh;
+    max-width: 60vw;
+    order: 1;
+  }
+
+  #ui-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100dvh;
+    width: clamp(280px, 35vw, 480px);
+    padding: 24px 0;
+    order: 2;
+    box-sizing: border-box;
+    background: rgba(0,0,0,0.1);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  }
+
+  #topbar, #tray, #items-panel {
+    width: 100%;
+    max-width: none;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  #tray {
+    margin-bottom: 20px;
+  }
+  
+  #items-panel {
+    margin-top: auto;
+  }
+}

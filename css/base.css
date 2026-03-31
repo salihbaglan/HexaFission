@@ -1,0 +1,22 @@
+* { 
+  margin:0; padding:0; box-sizing:border-box; 
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
