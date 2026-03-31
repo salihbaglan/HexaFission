@@ -115,64 +115,12 @@ function highlightHexUnder(x, y) {
   const tile = state.trayTiles[slotIdx];
   if (!tile) return;
 
-  let isHoveringTarget = false;
   // Tile'ın görsel merkezi parmağın DRAG_OFFSET_Y kadar üstünde
   const visualY = y - DRAG_OFFSET_Y;
   
-  let newTargetKeys = [];
-
-  if (!tile.double) {
-    const key = getHexKeyAtScreen(x, visualY);
-    let allowed = true;
-    if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].targetKey !== key) {
-      allowed = false;
-    }
-    if (key && state.grid[key] === 0 && allowed) {
-      newTargetKeys.push(key);
-      isHoveringTarget = true;
-    }
-  } else {
-    // Çift Parça Mantığı (Rijit Puzzle)
-    const R = HEX_SIZE;
-    const hDist = R * Math.sqrt(3);
-    const vDistY = R * 1.5;
-    const vDistX = R * Math.sqrt(3) / 2;
-    
-    // We use state.gridScale because if it snaps, the user wants it to fit perfectly there.
-    const testScale = state.gridScale || 1;
-
-    let px0, py0;
-    if (tile.orientation === 'H') {
-      px0 = x - (hDist / 2) * testScale;
-      py0 = visualY;
-    } else {
-      px0 = x + (vDistX / 2) * testScale;
-      py0 = visualY - (vDistY / 2) * testScale;
-    }
-
-    const key0 = getHexKeyAtScreen(px0, py0);
-    let allowed = true;
-    if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].targetKey !== key0) {
-      allowed = false;
-    }
-    if (key0 && state.grid[key0] === 0 && allowed) {
-      const [q, r] = key0.split(',').map(Number);
-      let q1, r1;
-      if (tile.orientation === 'H') {
-        q1 = q + 1;
-        r1 = r;
-      } else {
-        q1 = q - 1;
-        r1 = r + 1;
-      }
-
-      const key1 = `${q1},${r1}`;
-      if (state.grid[key1] === 0) {
-        newTargetKeys.push(key0, key1);
-        isHoveringTarget = true;
-      }
-    }
-  }
+  const scale = state.gridScale || 1;
+  const newTargetKeys = findBestTargetForTile(x, visualY, tile, scale);
+  const isHoveringTarget = newTargetKeys.length > 0;
 
   const newTargetStr = newTargetKeys.join('|');
   const currentTargetStr = highlightedKeys.join('|');
@@ -244,20 +192,54 @@ function clearHighlights() {
     previewActiveKeys = [];
   }
 
-  function getHexKeyAtScreen(x, y) {
+  function findBestTargetForTile(screenX, screenY, tile, scale) {
     const gridEl = document.getElementById('hex-grid');
     const rect = gridEl.getBoundingClientRect();
-    const scale = state.gridScale || 1;
-    const lx = (x - rect.left) / scale;
-    const ly = (y - rect.top) / scale;
+    const lx = (screenX - rect.left) / scale;
+    const ly = (screenY - rect.top) / scale;
 
-    let bestKey = null, bestDist = Infinity;
-    Object.entries(state.cellElements).forEach(([key, { cx, cy }]) => {
-      const d = Math.hypot(lx - cx, ly - cy);
-      if (d < bestDist) { bestDist = d; bestKey = key; }
-    });
-    // Snap alanını HEX_SIZE'dan HEX_SIZE * 1.5'e çıkardık. (Daha affedici stabil bir snap sağlar)
-    return bestDist < HEX_SIZE * 1.5 ? bestKey : null;
+    let bestKeys = [];
+    let bestDist = Infinity;
+    // Maksimum yakalama çapı (Dolu hexi atlayıp en yakın boş olan hexi yakalaması için)
+    const MAX_SNAP_DIST = HEX_SIZE * 2.5;
+
+    if (!tile.double) {
+      Object.entries(state.cellElements).forEach(([key, { cx, cy }]) => {
+        if (state.grid[key] !== 0) return; // Dolu petekleri tamamen devredışı bırak (üstünü atla)
+        if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].targetKey !== key) return;
+
+        const d = Math.hypot(lx - cx, ly - cy);
+        if (d < bestDist) { bestDist = d; bestKeys = [key]; }
+      });
+      return bestDist < MAX_SNAP_DIST ? bestKeys : [];
+    } else {
+      Object.entries(state.cellElements).forEach(([key0, el0]) => {
+        if (state.grid[key0] !== 0) return;
+        if (state.isTutorial && state.tutorialSequence[state.tutorialStep] && state.tutorialSequence[state.tutorialStep].targetKey !== key0) return;
+
+        const [q, r] = key0.split(',').map(Number);
+        let q1, r1;
+        if (tile.orientation === 'H') {
+          q1 = q + 1;
+          r1 = r;
+        } else {
+          q1 = q - 1;
+          r1 = r + 1; // Çift parçanın diagonal/vertical komşusu
+        }
+        const key1 = `${q1},${r1}`;
+
+        if (state.grid[key1] === undefined || state.grid[key1] !== 0) return;
+
+        const el1 = state.cellElements[key1];
+        const midX = (el0.cx + el1.cx) / 2;
+        const midY = (el0.cy + el1.cy) / 2;
+
+        const d = Math.hypot(lx - midX, ly - midY);
+        // Bu iki boş parçanın (merkezinin) imlece (ghost merkeze) olan mesafesi 
+        if (d < bestDist) { bestDist = d; bestKeys = [key0, key1]; }
+      });
+      return bestDist < MAX_SNAP_DIST ? bestKeys : [];
+    }
   }
 
   function finishDrop(x, y) {
