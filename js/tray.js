@@ -111,7 +111,8 @@ function buildHexPiece(col, R, cx, cy, fontSize, val) {
 }
 
 export function createTileElement(tile, slotIdx) {
-  const SLOT = 120;
+  // Sabit 120px yerine dinamik SLOT boyutu ile dar ekran patlamalarının önüne geçildi
+  const SLOT = HEX_SIZE * 3.6; 
   const CX   = SLOT / 2;
   const CY   = SLOT / 2;
 

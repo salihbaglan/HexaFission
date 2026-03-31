@@ -43,9 +43,7 @@
 }
 
 .tray-slot {
-  width: clamp(60px, 18vmin, 110px);
-  height: clamp(60px, 18vmin, 110px);
-  position: relative;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

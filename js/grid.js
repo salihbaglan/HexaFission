@@ -15,8 +15,8 @@ export function scaleGridToContainer() {
   const gH = gridEl.offsetHeight;
   if (!gW || !gH) return;
 
-  const scale = Math.min(cW / gW, cH / gH); // Aşırı büyümesini engellemek için tavan verirken, küçülmesinde aşırı kısıtlama yapmıyoruz (yatay/kare ekranlar için)
-  if (scale > 1.2) scale = 1.2;
+  let scale = Math.min(cW / gW, cH / gH); // Aşırı büyümesini engellemek için tavan verirken, küçülmesinde aşırı kısıtlama yapmıyoruz (yatay/kare ekranlar için)
+  if (scale > 1.4) scale = 1.4;
   if (scale < 0.15) scale = 0.15;
   gridEl.style.transform = `scale(${scale})`;
   state.gridScale = scale; // drag koordinat düzeltmesi için
