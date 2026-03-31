@@ -200,8 +200,8 @@ function clearHighlights() {
 
     let bestKeys = [];
     let bestDist = Infinity;
-    // Maksimum yakalama çapı (Dolu hexi atlayıp en yakın boş olan hexi yakalaması için)
-    const MAX_SNAP_DIST = HEX_SIZE * 2.5;
+    // Yakalama çapını biraz daralttık (çok agresif çekmemesi için)
+    const MAX_SNAP_DIST = HEX_SIZE * 1.8;
 
     if (!tile.double) {
       Object.entries(state.cellElements).forEach(([key, { cx, cy }]) => {
