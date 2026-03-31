@@ -109,7 +109,6 @@ function cleanupDrag() {
 }
 
 function highlightHexUnder(x, y) {
-  clearHighlights();
   if (!dragInfo) return;
 
   const { slotIdx } = dragInfo;
@@ -119,6 +118,8 @@ function highlightHexUnder(x, y) {
   let isHoveringTarget = false;
   // Tile'ın görsel merkezi parmağın DRAG_OFFSET_Y kadar üstünde
   const visualY = y - DRAG_OFFSET_Y;
+  
+  let newTargetKeys = [];
 
   if (!tile.double) {
     const key = getHexKeyAtScreen(x, visualY);
@@ -127,8 +128,7 @@ function highlightHexUnder(x, y) {
       allowed = false;
     }
     if (key && state.grid[key] === 0 && allowed) {
-      highlightedKeys.push(key);
-      state.cellElements[key].div.classList.add('drop-target');
+      newTargetKeys.push(key);
       isHoveringTarget = true;
     }
   } else {
@@ -168,11 +168,26 @@ function highlightHexUnder(x, y) {
 
       const key1 = `${q1},${r1}`;
       if (state.grid[key1] === 0) {
-        highlightedKeys.push(key0, key1);
-        state.cellElements[key0].div.classList.add('drop-target');
-        state.cellElements[key1].div.classList.add('drop-target');
+        newTargetKeys.push(key0, key1);
         isHoveringTarget = true;
       }
+    }
+  }
+
+  const newTargetStr = newTargetKeys.join('|');
+  const currentTargetStr = highlightedKeys.join('|');
+
+  // DOM thrashing'i önlemek için sadece hedef değiştiğinde işlemleri uygula
+  if (newTargetStr !== currentTargetStr) {
+    clearHighlights();
+    highlightedKeys = newTargetKeys;
+    
+    highlightedKeys.forEach(k => {
+      state.cellElements[k]?.div.classList.add('drop-target');
+    });
+
+    if (isHoveringTarget) {
+      _runMergePreview(tile);
     }
   }
 
@@ -181,9 +196,6 @@ function highlightHexUnder(x, y) {
   } else {
     ghostEl.style.transform = 'scale(1.15) translateY(-8px)';
   }
-
-  // Merge öngörüsü
-  _runMergePreview(tile);
 }
 
 function _runMergePreview(tile) {
@@ -244,7 +256,8 @@ function clearHighlights() {
       const d = Math.hypot(lx - cx, ly - cy);
       if (d < bestDist) { bestDist = d; bestKey = key; }
     });
-    return bestDist < HEX_SIZE ? bestKey : null;
+    // Snap alanını HEX_SIZE'dan HEX_SIZE * 1.5'e çıkardık. (Daha affedici stabil bir snap sağlar)
+    return bestDist < HEX_SIZE * 1.5 ? bestKey : null;
   }
 
   function finishDrop(x, y) {
