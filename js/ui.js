@@ -107,8 +107,9 @@ export function updateTutorialUI() {
   ghost.style.pointerEvents = 'none';
   ghost.style.opacity = '0.4';
   ghost.style.zIndex = '40';
-  ghost.style.left = (ghostGridX - 60) + 'px';
-  ghost.style.top = (ghostGridY - 60) + 'px';
+  const offset = HEX_SIZE * 1.8;
+  ghost.style.left = (ghostGridX - offset) + 'px';
+  ghost.style.top = (ghostGridY - offset) + 'px';
   document.getElementById('hex-grid').appendChild(ghost);
   
   const gridEl = document.getElementById('hex-grid');
@@ -148,13 +149,13 @@ export function updateTutorialUI() {
       textBox = document.createElement('div');
       textBox.id = 'tutorial-text-box';
       textBox.style.position = 'fixed';
-      textBox.style.top = '40%';
+      textBox.style.top = '22%';
       textBox.style.left = '50%';
       textBox.style.transform = 'translate(-50%, -50%)';
       textBox.style.color = '#ffffff';
       textBox.style.textShadow = '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 4px 16px rgba(0,0,0,0.6)';
       textBox.style.fontWeight = '900';
-      textBox.style.fontSize = '64px';
+      textBox.style.fontSize = 'clamp(36px, 8vmin, 54px)';
       textBox.style.textAlign = 'center';
       textBox.style.zIndex = '9900';
       textBox.style.pointerEvents = 'none';

@@ -1,41 +1,38 @@
+/* Responsive constraints for Landscape / Desktop orientations */
+
+/* Desktop / Landscape: Center the game explicitly and add shadow to differentiate from background */
 @media (min-aspect-ratio: 1/1) {
-  body {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+  #game-layout {
+    height: 100dvh;
+  }
+}
+
+/* Very tall / thin mobile displays (e.g., modern phones) */
+@media (min-aspect-ratio: 1/2.5) {
+  #game-layout {
+    /* Safe limits for ultra-tall phones */
+    padding-bottom: Env(safe-area-inset-bottom, 10px);
+    padding-top: Env(safe-area-inset-top, 10px);
+  }
+}
+
+/* Small heights: Scale down padding so it always fits without overflow */
+@media (max-height: 600px) {
+  #top-section {
+    padding: 6px 15px;
   }
   
-  #grid-container {
-    height: 100dvh;
-    max-width: 60vw;
-    order: 1;
-  }
-
-  #ui-panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100dvh;
-    width: clamp(280px, 35vw, 480px);
-    padding: 24px 0;
-    order: 2;
-    box-sizing: border-box;
-    background: rgba(0,0,0,0.1);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
-  }
-
-  #topbar, #tray, #items-panel {
-    width: 100%;
-    max-width: none;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
   #tray {
-    margin-bottom: 20px;
+    min-height: 65px;
   }
   
   #items-panel {
-    margin-top: auto;
+    padding-bottom: 4px;
+    gap: 15px;
+  }
+  
+  .item-btn {
+    width: clamp(35px, 8vmin, 50px);
+    height: clamp(35px, 8vmin, 50px);
   }
 }

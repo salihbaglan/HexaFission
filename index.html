@@ -29,59 +29,67 @@
   </div>
   <script src="js/loading.js"></script>
 
-  <div id="ui-panel">
-    <!-- TOP BAR -->
-    <div id="topbar">
-    <div class="scores-container">
-      <div class="score-box" id="best-score-box">
-        <img id="crown-img" src="" alt="crown">
-        <span id="best-val">0</span>
+  <!-- ============ GAME LAYOUT ============ -->
+  <div id="game-layout">
+
+    <!-- TOP SECTION: Best Score + Settings -->
+    <div id="top-section">
+      <div class="scores-container">
+        <div class="score-box" id="best-score-box">
+          <img id="crown-img" src="" alt="crown">
+          <span id="best-val">0</span>
+        </div>
+      </div>
+      <div class="score-box" id="current-score-box">
+        <img src="assets/images/Score_healt.png" alt="heart">
+        <img src="assets/images/Score_helatOutline.png" id="score-heart-outline" alt="heart outline" style="display: none;">
+        <span id="score-display">0</span>
+      </div>
+      <button id="settings-btn">
+        <img src="assets/images/settings.png" alt="settings">
+      </button>
+    </div>
+
+    <!-- MIDDLE SECTION: Grid Only -->
+    <div id="middle-section">
+      <div id="grid-container">
+        <div id="hex-grid"></div>
       </div>
     </div>
-    <button id="settings-btn">
-      <img src="assets/images/settings.png" alt="settings">
-    </button>
-  </div>
 
-  <!-- TRAY -->
-  <div id="tray">
-    <div class="tray-slot" id="slot-0"></div>
-    <div class="tray-slot" id="slot-1"></div>
-    <div class="tray-slot" id="slot-2"></div>
-  </div>
+    <!-- BOTTOM SECTION: Tray + Items -->
+    <div id="bottom-section">
+      <!-- TRAY -->
+      <div id="tray">
+        <div class="tray-slot" id="slot-0"></div>
+        <div class="tray-slot" id="slot-1"></div>
+        <div class="tray-slot" id="slot-2"></div>
+      </div>
+      <!-- ITEMS PANEL -->
+      <div id="items-panel">
+        <div class="item-btn" id="item-change-btn">
+          <img src="assets/images/changeHex.png" alt="change">
+          <span class="item-count" id="count-change">5</span>
+        </div>
+        <div class="item-btn" id="item-remove-btn">
+          <img src="assets/images/removeHex.png" alt="remove">
+          <span class="item-count" id="count-remove">5</span>
+        </div>
+      </div>
+    </div>
 
-  <!-- ITEMS PANEL -->
-  <div id="items-panel">
-    <div class="item-btn" id="item-change-btn">
-      <img src="assets/images/changeHex.png" alt="change">
-      <span class="item-count" id="count-change">5</span>
-    </div>
-    <div class="item-btn" id="item-remove-btn">
-      <img src="assets/images/removeHex.png" alt="remove">
-      <span class="item-count" id="count-remove">5</span>
-    </div>
   </div>
-  </div>
+  <!-- ============ END GAME LAYOUT ============ -->
+
+  <!-- DRAG GHOST -->
+  <div id="drag-ghost"></div>
 
   <!-- ITEM FOCUS OVERLAY -->
   <div id="item-focus-overlay" style="display:none;">
     <div id="item-focus-text"></div>
   </div>
 
-  <!-- GRID -->
-  <div id="grid-container">
-    <div class="score-box" id="current-score-box">
-      <img src="assets/images/Score_healt.png" alt="heart">
-      <img src="assets/images/Score_helatOutline.png" id="score-heart-outline" alt="heart outline" style="display: none;">
-      <span id="score-display">0</span>
-    </div>
-    <div id="hex-grid"></div>
-  </div>
-
-  <!-- DRAG GHOST -->
-  <div id="drag-ghost"></div>
-
-  <!-- SETTINGS -->
+  <!-- SETTINGS PANEL -->
   <div id="settings-panel">
     <button id="close-settings">✕</button>
     <h3>Settings</h3>
@@ -113,7 +121,7 @@
     </div>
   </div>
 
-  <!-- OVERLAY -->
+  <!-- GAME OVER OVERLAY -->
   <div id="overlay">
     <div id="modal">
       <h2>GAME OVER!</h2>
