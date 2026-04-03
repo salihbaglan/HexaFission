@@ -20,6 +20,10 @@ export function calcHexSize() {
   // Maksimum 46'ya kadar büyümesine izin veriyoruz ki yatay ekranlarda büyük grid oluşabilsin.
   HEX_SIZE = Math.floor(Math.min(avH, avW, 46));
   if (HEX_SIZE < 18) HEX_SIZE = 18;
+  
+  // Update CSS variable so empty tray slots never collapse and cause UI jump
+  document.documentElement.style.setProperty('--tray-slot-size', (HEX_SIZE * 3.6) + 'px');
+  
   return HEX_SIZE;
 }
 

@@ -79,6 +79,7 @@
   align-items: center;
   justify-content: center;
   cursor: default;
+  min-height: var(--tray-slot-size, 108px);
 }
 
 /* Items panel */
