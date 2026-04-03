@@ -23,13 +23,17 @@ export function randomTileValue(vals) {
 
 export function generateTray() {
   if (state.isTutorial) {
-    if (state.tutorialStep === 0) {
-      state.trayTiles[0] = { value: 2, double: false, secondValue: null, orientation: null };
+    state.trayTiles = [null, null, null];
+    const step = state.tutorialStep;
+    if (step === 0) {
       state.trayTiles[1] = { value: 2, double: false, secondValue: null, orientation: null };
+    } else if (step === 1) {
       state.trayTiles[2] = { value: 2, double: true, secondValue: 2, orientation: 'H' };
-    } else if (state.tutorialStep === 3) {
-      state.trayTiles[0] = null; 
+    } else if (step === 2) {
+      state.trayTiles[0] = { value: 2, double: false, secondValue: null, orientation: null };
+    } else if (step === 3) {
       state.trayTiles[1] = { value: 2, double: false, secondValue: null, orientation: null };
+    } else if (step === 4) {
       state.trayTiles[2] = { value: 2, double: true, secondValue: 2, orientation: 'H' };
     }
   } else {
@@ -147,13 +151,13 @@ export function createTileElement(tile, slotIdx) {
 
     values.forEach((v, i) => {
       const col = getTileColor(v);
-      const fs  = v >= 1000 ? '10px' : v >= 100 ? '12px' : '14px';
+      const fs  = v >= 1000 ? '12px' : v >= 100 ? '15px' : '17px';
       wrapper.appendChild(buildHexPiece(col, R, positions[i].cx, positions[i].cy, fs, v));
     });
   } else {
     const R   = HEX_SIZE;
     const col = getTileColor(tile.value);
-    const fs  = tile.value >= 1000 ? '12px' : tile.value >= 100 ? '14px' : '17px';
+    const fs  = tile.value >= 1000 ? '15px' : tile.value >= 100 ? '17px' : '20px';
     wrapper.appendChild(buildHexPiece(col, R, CX, CY, fs, tile.value));
   }
 

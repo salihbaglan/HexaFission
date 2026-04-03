@@ -158,7 +158,7 @@ export function updateGridDisplay() {
       innerFace.style.background = get3DTileBackground(col.bg, col.shadow);
       innerFace.style.display = 'block';
       val.textContent = v;
-      val.style.fontSize = v >= 1000 ? '11px' : v >= 100 ? '13px' : '15px';
+      val.style.fontSize = v >= 1000 ? '14px' : v >= 100 ? '16px' : '19px';
       val.style.color = 'white';
     } else {
       div.style.background = 'none';

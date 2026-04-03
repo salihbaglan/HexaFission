@@ -1,9 +1,31 @@
 /* Responsive constraints for Landscape / Desktop orientations */
 
-/* Desktop / Landscape: Center the game explicitly and add shadow to differentiate from background */
-@media (min-aspect-ratio: 1/1) {
+@media (min-width: 650px) and (min-aspect-ratio: 1.1/1) {
   #game-layout {
     height: 100dvh;
+    max-width: none;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 
+      "mid top"
+      "mid bot";
+    gap: 0;
+  }
+  
+  #top-section {
+    grid-area: top;
+    padding-top: 40px;
+  }
+  
+  #middle-section {
+    grid-area: mid;
+  }
+  
+  #bottom-section {
+    grid-area: bot;
+    justify-content: center;
+    padding-bottom: 40px;
   }
 }
 

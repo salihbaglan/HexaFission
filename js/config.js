@@ -5,20 +5,28 @@ export const MAX_LIVES = 5;
 // HEX_SIZE dinamik olarak hesaplanır
 export let HEX_SIZE = 30;
 
-// Mevcut boşluğa göre ideal hex boyutunu hesapla
 export function calcHexSize() {
-  const isLandscape = window.innerWidth > window.innerHeight;
+  const container = document.getElementById('game-layout');
+  const w = container ? container.clientWidth : window.innerWidth;
+  const h = container ? container.clientHeight : window.innerHeight;
+
   const diameter = GRID_RADIUS * 2 + 1;
-  // Dikey modda kullanılan yaklaşık UI yüksekliği. Taşma olmaması için payı artırdık (Topbar + Büyüyen Tray + Items).
-  const usedH = isLandscape ? 40 : 400;
-  // Yatay modda UI sağ yanda olduğu için yaklaşık 340px'lik alanı UI'ye bırakıyoruz. Dikeyde tamamını kullanıyoruz.
-  const usedW = isLandscape ? 340 : 20;
+  const isLandscape = window.innerWidth >= 650 && (window.innerWidth / window.innerHeight) > 1.1;
 
-  const avH = (window.innerHeight - usedH) / (diameter * 1.5 + 0.5);
-  const avW = (window.innerWidth - usedW) / (diameter * Math.sqrt(3));
+  let avH, avW;
+  if (isLandscape) {
+    // In CSS Grid, the right panel is 340px. Grid occupies the rest.
+    avW = Math.max(10, w - 380) / (diameter * Math.sqrt(3));
+    avH = Math.max(10, h - 40) / (diameter * 1.5 + 0.5);
+  } else {
+    // Vertical/Square column layout
+    avH = Math.max(10, h - 240) / (diameter * 1.5 + 0.5);
+    avW = Math.max(10, w - 20) / (diameter * Math.sqrt(3));
+  }
 
-  // Maksimum 46'ya kadar büyümesine izin veriyoruz ki yatay ekranlarda büyük grid oluşabilsin.
-  HEX_SIZE = Math.floor(Math.min(avH, avW, 46));
+  // Horizontal mode limits tray width to 340px. Max slot size = ~108px -> Max HEX_SIZE = 30
+  const maxHex = isLandscape ? 30 : 38;
+  HEX_SIZE = Math.floor(Math.min(avH, avW, maxHex));
   if (HEX_SIZE < 18) HEX_SIZE = 18;
   
   // Update CSS variable so empty tray slots never collapse and cause UI jump
