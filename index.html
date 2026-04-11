@@ -1,140 +1,111 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+		<title>Hex 2048</title>
+		<style>
+/* CUSTOM SPLAY LOADER - UNITY STYLE */
+html, body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background-color: #000000;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+}
+img {
+	-webkit-user-drag: none;
+	user-drag: none;
+}
+#status {
+	position: absolute;
+	left: 0; right: 0; top: 0; bottom: 0;
+	background: linear-gradient(135deg, #051937, #004d7a, #008793);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 9999;
+	transition: opacity 0.5s ease;
+}
+#status-splash {
+	position: static;
+	max-width: 160px;
+	max-height: 160px;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+#status-progress {
+	position: static;
+	width: 320px;
+	max-width: 80%;
+	height: 22px;
+	margin-top: 35px;
+	appearance: none;
+	-webkit-appearance: none;
+	border: none;
+	background-color: rgba(0, 0, 0, 0.4);
+	border-radius: 12px;
+	padding: 0;
+}
+#status-progress::-webkit-progress-bar { background-color: transparent; }
+#status-progress::-webkit-progress-value { background-color: #ffffff; border-radius: 12px; transition: width 0.1s linear; }
+#status-progress::-moz-progress-bar { background-color: #ffffff; border-radius: 12px; }
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Hex 2048</title>
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/animations.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/loading.css">
-  <link rel="stylesheet" href="css/modals.css">
-  <link rel="stylesheet" href="css/responsive.css">
-</head>
+#game-iframe {
+	width: 100%;
+	height: 100%;
+	border: none;
+	display: none;
+}
+		</style>
+	</head>
+	<body>
+		<div id="status">
+			<img id="status-splash" src="SPlay-Loader/splayLogo.png" alt="SPlay Logo">
+			<progress id="status-progress" value="0" max="100"></progress>
+		</div>
 
-<body>
+		<!-- Game loaded here -->
+		<iframe id="game-iframe" src="game.html"></iframe>
 
-  <!-- LOADING SCREEN -->
-  <div id="loading-screen">
-    <div id="loading-hex-container"></div>
-    <div class="loading-content">
-      <img src="assets/images/Loading/GameName.png" alt="Hexa Fission" class="loading-logo">
-    </div>
-    <div id="loading-text-container">
-      <p id="loading-text">Loading...</p>
-    </div>
-  </div>
-  <script src="js/loading.js"></script>
+		<script>
+		(function () {
+			// Prevent right-click menu
+			document.addEventListener('contextmenu', e => e.preventDefault());
 
-  <!-- ============ GAME LAYOUT ============ -->
-  <div id="game-layout">
+			const statusOverlay = document.getElementById('status');
+			const statusProgress = document.getElementById('status-progress');
+			const iframe = document.getElementById('game-iframe');
 
-    <!-- TOP SECTION: Best Score + Settings -->
-    <div id="top-section">
-      <div class="scores-container">
-        <div class="score-box" id="best-score-box">
-          <img id="crown-img" src="" alt="crown">
-          <span id="best-val">0</span>
-        </div>
-      </div>
-      <div class="score-box" id="current-score-box">
-        <img src="assets/images/Score_healt.png" alt="heart">
-        <img src="assets/images/Score_helatOutline.png" id="score-heart-outline" alt="heart outline" style="display: none;">
-        <span id="score-display">0</span>
-      </div>
-      <button id="settings-btn">
-        <img src="assets/images/settings.png" alt="settings">
-      </button>
-    </div>
-
-    <!-- MIDDLE SECTION: Grid Only -->
-    <div id="middle-section">
-      <div id="grid-container">
-        <div id="hex-grid"></div>
-      </div>
-    </div>
-
-    <!-- BOTTOM SECTION: Tray + Items -->
-    <div id="bottom-section">
-      <!-- TRAY -->
-      <div id="tray">
-        <div class="tray-slot" id="slot-0"></div>
-        <div class="tray-slot" id="slot-1"></div>
-        <div class="tray-slot" id="slot-2"></div>
-      </div>
-      <!-- ITEMS PANEL -->
-      <div id="items-panel">
-        <div class="item-btn" id="item-change-btn">
-          <img src="assets/images/changeHex.png" alt="change">
-          <span class="item-count" id="count-change">5</span>
-        </div>
-        <div class="item-btn" id="item-remove-btn">
-          <img src="assets/images/removeHex.png" alt="remove">
-          <span class="item-count" id="count-remove">5</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-  <!-- ============ END GAME LAYOUT ============ -->
-
-  <!-- DRAG GHOST -->
-  <div id="drag-ghost"></div>
-
-  <!-- ITEM FOCUS OVERLAY -->
-  <div id="item-focus-overlay" style="display:none;">
-    <div id="item-focus-text"></div>
-  </div>
-
-  <!-- SETTINGS PANEL -->
-  <div id="settings-panel">
-    <button id="close-settings">✕</button>
-    <h3>Settings</h3>
-    <div class="setting-row">
-      <span>Music</span>
-      <div class="toggle on" id="toggle-music"></div>
-    </div>
-    <div class="setting-row">
-      <span>Sound Effects</span>
-      <div class="toggle on" id="toggle-sfx"></div>
-    </div>
-    <div class="setting-row">
-      <span>Vibration</span>
-      <div class="toggle on" id="toggle-vib"></div>
-    </div>
-    <br>
-    <button class="btn btn-primary" id="restart-btn" style="width:100%;margin-top:10px">New Game</button>
-  </div>
-
-  <!-- AD OFFER MODAL -->
-  <div id="ad-offer-modal">
-    <div id="ad-modal">
-      <h2>OUT OF USES</h2>
-      <p id="ad-offer-text">Watch a short ad to get +3 free uses.</p>
-      <div style="display:flex; gap:12px; justify-content:center; margin-top:24px;">
-        <button class="btn" id="ad-offer-cancel" style="background:rgba(255,255,255,0.15); color:white; flex:1;">Cancel</button>
-        <button class="btn btn-primary" id="ad-offer-watch" style="flex:1;">Watch Ad</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- GAME OVER OVERLAY -->
-  <div id="overlay">
-    <div id="modal">
-      <h2>GAME OVER!</h2>
-      <div class="modal-score" id="modal-score">0</div>
-      <p>Board is full, no more moves.</p>
-      <button class="btn btn-primary" id="play-again-btn">Play Again</button>
-    </div>
-  </div>
-
-  <!-- SCRIPTS -->
-  <script src="js/splay-bridge.js"></script>
-  <script type="module" src="js/game.js"></script>
-
-</body>
-
+			let progress = 0;
+			// Fake progress loading
+			const progressInterval = setInterval(() => {
+				progress += Math.random() * 8; // Random increments
+				if (progress >= 100) {
+					progress = 100;
+					statusProgress.value = progress;
+					clearInterval(progressInterval);
+					
+					// Yükleme tamamlandığında iframe'i göster
+					iframe.style.display = 'block';
+					setTimeout(() => {
+						statusOverlay.style.opacity = '0';
+						setTimeout(() => statusOverlay.remove(), 500);
+					}, 300);
+				} else {
+					statusProgress.value = progress;
+				}
+			}, 80);
+		})();
+		</script>
+	</body>
 </html>

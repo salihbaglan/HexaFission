@@ -124,6 +124,9 @@ function restartGame() {
 
 // ==================== INITIALIZATION ====================
 async function init() {
+  // Prevent right-click menu
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
   await initAudio();
   document.getElementById('best-val').textContent = state.bestScore;
   initGrid();
