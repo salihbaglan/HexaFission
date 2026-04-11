@@ -75,7 +75,7 @@ img {
 		</div>
 
 		<!-- Game loaded here -->
-		<iframe id="game-iframe" src="game.html"></iframe>
+		<iframe id="game-iframe"></iframe>
 
 		<script>
 		(function () {
@@ -95,7 +95,8 @@ img {
 					statusProgress.value = progress;
 					clearInterval(progressInterval);
 					
-					// Yükleme tamamlandığında iframe'i göster
+					// Yükleme tamamlandığında iframe'e oyunu yükle ve göster
+					iframe.src = 'game.html';
 					iframe.style.display = 'block';
 					setTimeout(() => {
 						statusOverlay.style.opacity = '0';
